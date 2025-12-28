@@ -1,4 +1,4 @@
---// REY GUI - CLEAR & VISIBLE VERSION
+--// REY GUI FIXED (ANTI KOSONG & ANTI KETUTUP)
 
 if not game:IsLoaded() then game.Loaded:Wait() end
 
@@ -8,34 +8,86 @@ end)
 
 local UIS = game:GetService("UserInputService")
 
--- MAIN GUI
-local gui = Instance.new("ScreenGui", game.CoreGui)
+-- GUI
+local gui = Instance.new("ScreenGui")
 gui.Name = "ReyGui"
+gui.IgnoreGuiInset = true -- << INI PENTING
 gui.ResetOnSpawn = false
+gui.Parent = game.CoreGui
 
+-- MAIN FRAME
 local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 450, 0, 320)
-main.Position = UDim2.new(0.5, -225, 0.5, -160)
-main.BackgroundColor3 = Color3.fromRGB(30,30,30)
+main.Size = UDim2.new(0, 420, 0, 300)
+main.Position = UDim2.new(0.5, -210, 0.5, -150)
+main.BackgroundColor3 = Color3.fromRGB(25,25,25)
 main.BorderSizePixel = 0
+main.ZIndex = 10
 
--- CORNER
-Instance.new("UICorner", main).CornerRadius = UDim.new(0, 14)
+-- ROUND
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
 
 -- TOP BAR
 local top = Instance.new("Frame", main)
 top.Size = UDim2.new(1,0,0,45)
-top.BackgroundColor3 = Color3.fromRGB(45,45,45)
+top.BackgroundColor3 = Color3.fromRGB(35,35,35)
+top.ZIndex = 11
 
 local title = Instance.new("TextLabel", top)
-title.Size = UDim2.new(1,-50,1,0)
-title.Position = UDim2.new(0,15,0,0)
-title.Text = "🔥 Rey Script Panel"
+title.Size = UDim2.new(1,-20,1,0)
+title.Position = UDim2.new(0,10,0,0)
+title.Text = "🔥 Rey Script Hub"
 title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
 title.Font = Enum.Font.GothamBold
 title.TextSize = 18
-title.BackgroundTransparency = 1
+title.ZIndex = 12
 title.TextXAlignment = Left
+
+-- CONTENT PANEL
+local content = Instance.new("Frame", main)
+content.Position = UDim2.new(0, 10, 0, 55)
+content.Size = UDim2.new(1, -20, 1, -65)
+content.BackgroundColor3 = Color3.fromRGB(45,45,45)
+content.ZIndex = 10
+Instance.new("UICorner", content).CornerRadius = UDim.new(0, 10)
+
+-- STATUS TEXT
+local status = Instance.new("TextLabel", content)
+status.Position = UDim2.new(0, 10, 0, 10)
+status.Size = UDim2.new(1, -20, 0, 40)
+status.Text = "STATUS: OFF"
+status.TextColor3 = Color3.fromRGB(255,255,255)
+status.Font = Enum.Font.GothamBold
+status.TextSize = 16
+status.BackgroundTransparency = 1
+status.ZIndex = 11
+
+-- BUTTON
+local button = Instance.new("TextButton", content)
+button.Position = UDim2.new(0, 10, 0, 60)
+button.Size = UDim2.new(0, 220, 0, 45)
+button.Text = "TURN ON"
+button.BackgroundColor3 = Color3.fromRGB(70,70,70)
+button.TextColor3 = Color3.new(1,1,1)
+button.Font = Enum.Font.GothamBold
+button.TextSize = 16
+button.ZIndex = 11
+Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
+
+-- TOGGLE LOGIC
+local enabled = false
+button.MouseButton1Click:Connect(function()
+    enabled = not enabled
+    if enabled then
+        button.Text = "TURN OFF"
+        button.BackgroundColor3 = Color3.fromRGB(0,170,100)
+        status.Text = "STATUS: ACTIVE"
+    else
+        button.Text = "TURN ON"
+        button.BackgroundColor3 = Color3.fromRGB(70,70,70)
+        status.Text = "STATUS: OFF"
+    end
+end)
 
 -- DRAG
 local dragging, dragStart, startPos
@@ -60,57 +112,4 @@ UIS.InputEnded:Connect(function(i)
     end
 end)
 
--- CONTENT BOX
-local box = Instance.new("Frame", main)
-box.Position = UDim2.new(0, 15, 0, 60)
-box.Size = UDim2.new(1, -30, 1, -75)
-box.BackgroundColor3 = Color3.fromRGB(40,40,40)
-Instance.new("UICorner", box).CornerRadius = UDim.new(0, 10)
-
--- TITLE
-local info = Instance.new("TextLabel", box)
-info.Size = UDim2.new(1, -20, 0, 40)
-info.Position = UDim2.new(0, 10, 0, 10)
-info.Text = "Status Panel"
-info.TextColor3 = Color3.new(1,1,1)
-info.Font = Enum.Font.GothamBold
-info.TextSize = 16
-info.BackgroundTransparency = 1
-
--- STATUS
-local status = Instance.new("TextLabel", box)
-status.Position = UDim2.new(0, 10, 0, 55)
-status.Size = UDim2.new(1, -20, 0, 30)
-status.Text = "Status: OFF"
-status.TextColor3 = Color3.fromRGB(200,200,200)
-status.Font = Enum.Font.Gotham
-status.TextSize = 14
-status.BackgroundTransparency = 1
-
--- BUTTON
-local btn = Instance.new("TextButton", box)
-btn.Position = UDim2.new(0, 10, 0, 95)
-btn.Size = UDim2.new(0, 200, 40)
-btn.Text = "TURN ON"
-btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
-btn.TextColor3 = Color3.new(1,1,1)
-btn.Font = Enum.Font.GothamBold
-btn.TextSize = 16
-Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-
-local enabled = false
-
-btn.MouseButton1Click:Connect(function()
-    enabled = not enabled
-    if enabled then
-        btn.Text = "TURN OFF"
-        btn.BackgroundColor3 = Color3.fromRGB(0,170,120)
-        status.Text = "Status: ACTIVE"
-    else
-        btn.Text = "TURN ON"
-        btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
-        status.Text = "Status: OFF"
-    end
-end)
-
-print("✅ GUI Loaded - Visible & Working")
+print("✅ GUI LOADED - FULLY VISIBLE")
