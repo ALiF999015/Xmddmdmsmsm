@@ -1,6 +1,15 @@
 -- Fluent UI Script Executor untuk Roblox
 -- Script by Rey | Paste di Executor favorit Anda
 
+-- Destroy any existing windows first
+pcall(function()
+    if game:GetService("CoreGui"):FindFirstChild("Fluent") then
+        game:GetService("CoreGui"):FindFirstChild("Fluent"):Destroy()
+    end
+end)
+
+task.wait(0.5)
+
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -14,39 +23,144 @@ local isAuthenticated = false
 local speed1 = 1
 local speed2 = 1
 local isExecuting = false
+local logs = {}
 
--- Create Key Window
-local KeyWindow = Fluent:CreateWindow({
-    Title = "🔐 Key System",
-    SubTitle = "Rey Script Hub",
+-- Create Single Window
+local Window = Fluent:CreateWindow({
+    Title = "🎣 Fish World Script Hub",
+    SubTitle = "by Rey | v1.0",
     TabWidth = 160,
-    Size = UDim2.fromOffset(480, 360),
+    Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
     Theme = "Darker",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
-local KeyTab = KeyWindow:AddTab({ Title = "Key Verification", Icon = "key" })
+-- Create All Tabs
+local KeyTab = Window:AddTab({ Title = "Key System", Icon = "key" })
+local MainTab = Window:AddTab({ Title = "Main", Icon = "zap" })
+local SettingsTab = Window:AddTab({ Title = "Settings", Icon = "settings" })
+local ConsoleTab = Window:AddTab({ Title = "Console", Icon = "terminal" })
+local InfoTab = Window:AddTab({ Title = "Info", Icon = "info" })
 
+-- Functions
+local function addLog(message, logType)
+    local timestamp = os.date("%H:%M:%S")
+    local logMessage = string.format("[%s] %s", timestamp, message)
+    table.insert(logs, {text = logMessage, type = logType or "info"})
+    if #logs > 10 then
+        table.remove(logs, 1)
+    end
+end
+
+local function executeScript1()
+    addLog("🚀 Memulai Script 1...", "info")
+    task.wait(speed1)
+    
+    local args = {
+        {
+            Vector3.new(-269.9783020019531, 15.866171836853027, -262.7765197753906),
+            Vector3.new(-0.4332737326622009, -2.7589200257693847e-08, -0.9012624025344849),
+            1.9519617557525635,
+            false
+        }
+    }
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("communication"):WaitForChild("9362e25a8d224fd987d0d3f50d8249bc"):FireServer(unpack(args))
+    
+    addLog("✅ Script 1 Berhasil!", "success")
+end
+
+local function executeScript2()
+    addLog("🚀 Memulai Script 2...", "info")
+    task.wait(speed2)
+    
+    local args = {
+        {
+            true,
+            Vector3.new(-274.2834777832031, 3.4583072662353516, -274.8772277832031)
+        }
+    }
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("communication"):WaitForChild("fc57ae91538d430fa1ff9a33be3bc18c"):FireServer(unpack(args))
+    
+    addLog("✅ Script 2 Berhasil!", "success")
+end
+
+local function executeBothScripts()
+    if isExecuting then
+        addLog("⚠️ Scripts sedang berjalan!", "warning")
+        Fluent:Notify({
+            Title = "⚠️ Peringatan",
+            Content = "Script sedang berjalan!",
+            Duration = 2
+        })
+        return
+    end
+    
+    isExecuting = true
+    addLog("▶️ Memulai Eksekusi...", "info")
+    
+    task.spawn(function()
+        local success1, err1 = pcall(function()
+            executeScript1()
+        end)
+        
+        if not success1 then
+            addLog("❌ Error Script 1: " .. tostring(err1), "error")
+            Fluent:Notify({
+                Title = "❌ Error",
+                Content = "Script 1 gagal!",
+                Duration = 3
+            })
+            isExecuting = false
+            return
+        end
+        
+        local success2, err2 = pcall(function()
+            executeScript2()
+        end)
+        
+        if not success2 then
+            addLog("❌ Error Script 2: " .. tostring(err2), "error")
+            Fluent:Notify({
+                Title = "❌ Error",
+                Content = "Script 2 gagal!",
+                Duration = 3
+            })
+        else
+            addLog("🎉 Semua Script Selesai!", "complete")
+            Fluent:Notify({
+                Title = "🎉 Selesai!",
+                Content = "Semua script berhasil!",
+                Duration = 3
+            })
+        end
+        
+        isExecuting = false
+    end)
+end
+
+-- Key Tab Setup
 KeyTab:AddParagraph({
-    Title = "🎣 Fish World Script Hub",
-    Content = "Masukkan key untuk mengakses script. Dapatkan key gratis di Discord server kami!"
+    Title = "🔐 Key Verification",
+    Content = "Masukkan key untuk mengakses script. Dapatkan key gratis di Discord!"
 })
 
 KeyTab:AddParagraph({
-    Title = "💬 Join Discord Server",
-    Content = "Dapatkan key gratis dengan join Discord server kami!"
+    Title = "💬 Discord Server",
+    Content = DISCORD_LINK
 })
 
 KeyTab:AddButton({
     Title = "📋 Copy Discord Link",
-    Description = "Salin link Discord ke clipboard",
+    Description = "Salin link Discord",
     Callback = function()
         setclipboard(DISCORD_LINK)
         Fluent:Notify({
             Title = "✅ Berhasil!",
-            Content = "Link Discord telah disalin ke clipboard!",
-            Duration = 3
+            Content = "Link disalin!",
+            Duration = 2
         })
     end
 })
@@ -70,301 +184,204 @@ KeyTab:AddButton({
     Callback = function()
         if keyInput == CORRECT_KEY then
             isAuthenticated = true
+            
             Fluent:Notify({
                 Title = "🎉 Key Valid!",
-                Content = "Selamat datang! Script sedang dimuat...",
+                Content = "Akses diberikan! Cek tab lain.",
                 Duration = 3
             })
-            task.wait(1)
-            KeyWindow:Destroy()
-            loadMainScript()
+            
+            addLog("✨ Script berhasil dimuat!", "complete")
+            addLog("📌 Siap digunakan!", "info")
         else
             Fluent:Notify({
                 Title = "❌ Key Salah!",
-                Content = "Key tidak valid. Join Discord untuk mendapatkan key!",
-                Duration = 4
+                Content = "Key tidak valid!",
+                Duration = 3
             })
         end
     end
 })
 
 KeyTab:AddParagraph({
-    Title = "💡 Cara Mendapatkan Key",
-    Content = "1. Join Discord server\n2. Pergi ke channel #get-key\n3. Ikuti instruksi di channel\n4. Masukkan key yang didapat"
+    Title = "💡 Info",
+    Content = "Join Discord untuk mendapatkan key gratis!"
 })
 
--- Main Script Function
-function loadMainScript()
-    -- Console Logs
-    local logs = {}
-    local function addLog(message, logType)
-        local timestamp = os.date("%H:%M:%S")
-        local logMessage = string.format("[%s] %s", timestamp, message)
-        table.insert(logs, {text = logMessage, type = logType or "info"})
-        if #logs > 10 then
-            table.remove(logs, 1)
-        end
-    end
+-- Main Tab Setup
+MainTab:AddParagraph({
+    Title = "🎣 Script Executor Pro",
+    Content = "Jalankan kedua script secara berurutan dengan delay yang dapat disesuaikan."
+})
 
-    -- Script 1 Function
-    local function executeScript1()
-        addLog("🚀 Memulai Script 1...", "info")
-        task.wait(speed1)
-        
-        local args = {
-            {
-                Vector3.new(-269.9783020019531, 15.866171836853027, -262.7765197753906),
-                Vector3.new(-0.4332737326622009, -2.7589200257693847e-08, -0.9012624025344849),
-                1.9519617557525635,
-                false
-            }
-        }
-        
-        game:GetService("ReplicatedStorage"):WaitForChild("communication"):WaitForChild("9362e25a8d224fd987d0d3f50d8249bc"):FireServer(unpack(args))
-        
-        addLog("✅ Script 1 Berhasil!", "success")
-    end
+local StatusLabel = MainTab:AddParagraph({
+    Title = "📊 Status",
+    Content = "⏳ Menunggu eksekusi..."
+})
 
-    -- Script 2 Function
-    local function executeScript2()
-        addLog("🚀 Memulai Script 2...", "info")
-        task.wait(speed2)
-        
-        local args = {
-            {
-                true,
-                Vector3.new(-274.2834777832031, 3.4583072662353516, -274.8772277832031)
-            }
-        }
-        
-        game:GetService("ReplicatedStorage"):WaitForChild("communication"):WaitForChild("fc57ae91538d430fa1ff9a33be3bc18c"):FireServer(unpack(args))
-        
-        addLog("✅ Script 2 Berhasil!", "success")
-    end
-
-    -- Execute Both Scripts
-    local function executeBothScripts()
-        if isExecuting then
-            addLog("⚠️ Scripts sedang berjalan!", "warning")
-            Fluent:Notify({
-                Title = "⚠️ Peringatan",
-                Content = "Script sedang berjalan!",
-                Duration = 2
-            })
-            return
-        end
-        
-        isExecuting = true
-        addLog("▶️ Memulai Eksekusi...", "info")
-        
-        task.spawn(function()
-            local success1, err1 = pcall(function()
-                executeScript1()
-            end)
-            
-            if not success1 then
-                addLog("❌ Error Script 1: " .. tostring(err1), "error")
-                Fluent:Notify({
-                    Title = "❌ Error",
-                    Content = "Script 1 gagal dijalankan!",
-                    Duration = 3
-                })
-                isExecuting = false
-                return
-            end
-            
-            local success2, err2 = pcall(function()
-                executeScript2()
-            end)
-            
-            if not success2 then
-                addLog("❌ Error Script 2: " .. tostring(err2), "error")
-                Fluent:Notify({
-                    Title = "❌ Error",
-                    Content = "Script 2 gagal dijalankan!",
-                    Duration = 3
-                })
-            else
-                addLog("🎉 Semua Script Selesai!", "complete")
-                Fluent:Notify({
-                    Title = "🎉 Selesai!",
-                    Content = "Semua script berhasil dijalankan!",
-                    Duration = 3
-                })
-            end
-            
-            isExecuting = false
-        end)
-    end
-
-    -- Create Main Window
-    local Window = Fluent:CreateWindow({
-        Title = "🎣 Fish World Script Hub",
-        SubTitle = "by Rey | v1.0",
-        TabWidth = 160,
-        Size = UDim2.fromOffset(580, 460),
-        Acrylic = true,
-        Theme = "Darker",
-        MinimizeKey = Enum.KeyCode.LeftControl
-    })
-
-    -- Create Tabs
-    local MainTab = Window:AddTab({ Title = "Main", Icon = "zap" })
-    local SettingsTab = Window:AddTab({ Title = "Settings", Icon = "settings" })
-    local ConsoleTab = Window:AddTab({ Title = "Console", Icon = "terminal" })
-    local InfoTab = Window:AddTab({ Title = "Info", Icon = "info" })
-
-    -- Main Tab
-    MainTab:AddParagraph({
-        Title = "🎣 Script Executor Pro",
-        Content = "Jalankan kedua script secara berurutan dengan delay yang dapat disesuaikan."
-    })
-
-    local StatusLabel = MainTab:AddParagraph({
-        Title = "📊 Status",
-        Content = "⏳ Menunggu eksekusi..."
-    })
-
-    task.spawn(function()
-        while true do
+task.spawn(function()
+    while true do
+        pcall(function()
             if isExecuting then
                 StatusLabel:SetDesc("🟢 Sedang Berjalan...")
             else
                 StatusLabel:SetDesc("⏳ Siap Dijalankan")
             end
-            task.wait(0.5)
+        end)
+        task.wait(0.5)
+    end
+end)
+
+MainTab:AddButton({
+    Title = "▶️ Execute All Scripts",
+    Description = "Jalankan Script 1 → Script 2",
+    Callback = function()
+        if not isAuthenticated then
+            Fluent:Notify({
+                Title = "🔒 Akses Ditolak",
+                Content = "Verifikasi key di tab Key System!",
+                Duration = 3
+            })
+            return
         end
-    end)
+        executeBothScripts()
+    end
+})
 
-    MainTab:AddButton({
-        Title = "▶️ Execute All Scripts",
-        Description = "Jalankan Script 1 → Script 2",
-        Callback = function()
-            executeBothScripts()
+MainTab:AddButton({
+    Title = "⚡ Execute Script 1 Only",
+    Description = "Jalankan Script 1 saja",
+    Callback = function()
+        if not isAuthenticated then
+            Fluent:Notify({
+                Title = "🔒 Akses Ditolak",
+                Content = "Verifikasi key terlebih dahulu!",
+                Duration = 3
+            })
+            return
         end
-    })
-
-    MainTab:AddButton({
-        Title = "⚡ Execute Script 1 Only",
-        Description = "Jalankan Script 1 saja",
-        Callback = function()
-            if not isExecuting then
-                isExecuting = true
-                task.spawn(function()
-                    pcall(executeScript1)
-                    isExecuting = false
-                end)
-            end
+        if not isExecuting then
+            isExecuting = true
+            task.spawn(function()
+                pcall(executeScript1)
+                isExecuting = false
+            end)
         end
-    })
+    end
+})
 
-    MainTab:AddButton({
-        Title = "⚡ Execute Script 2 Only",
-        Description = "Jalankan Script 2 saja",
-        Callback = function()
-            if not isExecuting then
-                isExecuting = true
-                task.spawn(function()
-                    pcall(executeScript2)
-                    isExecuting = false
-                end)
-            end
+MainTab:AddButton({
+    Title = "⚡ Execute Script 2 Only",
+    Description = "Jalankan Script 2 saja",
+    Callback = function()
+        if not isAuthenticated then
+            Fluent:Notify({
+                Title = "🔒 Akses Ditolak",
+                Content = "Verifikasi key terlebih dahulu!",
+                Duration = 3
+            })
+            return
         end
-    })
-
-    -- Settings Tab
-    SettingsTab:AddParagraph({
-        Title = "⚙️ Pengaturan Kecepatan",
-        Content = "Atur delay eksekusi untuk setiap script (dalam detik)"
-    })
-
-    local Speed1Input = SettingsTab:AddInput("Speed1Input", {
-        Title = "⚡ Delay Script 1 (detik)",
-        Default = "1",
-        Placeholder = "Masukkan delay...",
-        Numeric = true,
-        Finished = true,
-        Callback = function(Value)
-            local num = tonumber(Value)
-            if num and num >= 0 then
-                speed1 = num
-                addLog("⚙️ Delay Script 1 diatur ke: " .. num .. "s", "info")
-            else
-                addLog("⚠️ Input tidak valid!", "warning")
-            end
+        if not isExecuting then
+            isExecuting = true
+            task.spawn(function()
+                pcall(executeScript2)
+                isExecuting = false
+            end)
         end
-    })
+    end
+})
 
-    local Speed2Input = SettingsTab:AddInput("Speed2Input", {
-        Title = "⚡ Delay Script 2 (detik)",
-        Default = "1",
-        Placeholder = "Masukkan delay...",
-        Numeric = true,
-        Finished = true,
-        Callback = function(Value)
-            local num = tonumber(Value)
-            if num and num >= 0 then
-                speed2 = num
-                addLog("⚙️ Delay Script 2 diatur ke: " .. num .. "s", "info")
-            else
-                addLog("⚠️ Input tidak valid!", "warning")
-            end
+-- Settings Tab Setup
+SettingsTab:AddParagraph({
+    Title = "⚙️ Pengaturan Kecepatan",
+    Content = "Atur delay eksekusi untuk setiap script (dalam detik)"
+})
+
+local Speed1Input = SettingsTab:AddInput("Speed1Input", {
+    Title = "⚡ Delay Script 1 (detik)",
+    Default = "1",
+    Placeholder = "Masukkan delay...",
+    Numeric = true,
+    Finished = true,
+    Callback = function(Value)
+        local num = tonumber(Value)
+        if num and num >= 0 then
+            speed1 = num
+            addLog("⚙️ Delay Script 1: " .. num .. "s", "info")
         end
-    })
+    end
+})
 
-    SettingsTab:AddSlider("Slider1", {
-        Title = "Script 1 Delay Slider",
-        Description = "Gunakan slider untuk mengatur delay",
-        Default = 1,
-        Min = 0,
-        Max = 10,
-        Rounding = 1,
-        Callback = function(Value)
-            speed1 = Value
-            Speed1Input:SetValue(tostring(Value))
-            addLog("⚙️ Delay Script 1: " .. Value .. "s", "info")
+local Speed2Input = SettingsTab:AddInput("Speed2Input", {
+    Title = "⚡ Delay Script 2 (detik)",
+    Default = "1",
+    Placeholder = "Masukkan delay...",
+    Numeric = true,
+    Finished = true,
+    Callback = function(Value)
+        local num = tonumber(Value)
+        if num and num >= 0 then
+            speed2 = num
+            addLog("⚙️ Delay Script 2: " .. num .. "s", "info")
         end
-    })
+    end
+})
 
-    SettingsTab:AddSlider("Slider2", {
-        Title = "Script 2 Delay Slider",
-        Description = "Gunakan slider untuk mengatur delay",
-        Default = 1,
-        Min = 0,
-        Max = 10,
-        Rounding = 1,
-        Callback = function(Value)
-            speed2 = Value
-            Speed2Input:SetValue(tostring(Value))
-            addLog("⚙️ Delay Script 2: " .. Value .. "s", "info")
-        end
-    })
+SettingsTab:AddSlider("Slider1", {
+    Title = "Script 1 Delay Slider",
+    Description = "Atur delay dengan slider",
+    Default = 1,
+    Min = 0,
+    Max = 10,
+    Rounding = 1,
+    Callback = function(Value)
+        speed1 = Value
+        Speed1Input:SetValue(tostring(Value))
+        addLog("⚙️ Delay Script 1: " .. Value .. "s", "info")
+    end
+})
 
-    -- Console Tab
-    ConsoleTab:AddParagraph({
-        Title = "📋 Console Log",
-        Content = "Monitor aktivitas script di sini"
-    })
+SettingsTab:AddSlider("Slider2", {
+    Title = "Script 2 Delay Slider",
+    Description = "Atur delay dengan slider",
+    Default = 1,
+    Min = 0,
+    Max = 10,
+    Rounding = 1,
+    Callback = function(Value)
+        speed2 = Value
+        Speed2Input:SetValue(tostring(Value))
+        addLog("⚙️ Delay Script 2: " .. Value .. "s", "info")
+    end
+})
 
-    local ConsoleLabel = ConsoleTab:AddParagraph({
-        Title = "Logs",
-        Content = "Belum ada log..."
-    })
+-- Console Tab Setup
+ConsoleTab:AddParagraph({
+    Title = "📋 Console Log",
+    Content = "Monitor aktivitas script"
+})
 
-    ConsoleTab:AddButton({
-        Title = "🗑️ Clear Logs",
-        Description = "Hapus semua log console",
-        Callback = function()
-            logs = {}
-            ConsoleLabel:SetDesc("Log telah dihapus!")
-            task.wait(1)
-            ConsoleLabel:SetDesc("Belum ada log...")
-        end
-    })
+local ConsoleLabel = ConsoleTab:AddParagraph({
+    Title = "Logs",
+    Content = "Belum ada log..."
+})
 
-    -- Update Console
-    task.spawn(function()
-        while true do
+ConsoleTab:AddButton({
+    Title = "🗑️ Clear Logs",
+    Description = "Hapus semua log",
+    Callback = function()
+        logs = {}
+        ConsoleLabel:SetDesc("Log telah dihapus!")
+        task.wait(1)
+        ConsoleLabel:SetDesc("Belum ada log...")
+    end
+})
+
+-- Update Console
+task.spawn(function()
+    while true do
+        pcall(function()
             if #logs > 0 then
                 local logText = ""
                 for i = math.max(1, #logs - 9), #logs do
@@ -374,56 +391,57 @@ function loadMainScript()
                 end
                 ConsoleLabel:SetDesc(logText)
             end
-            task.wait(0.1)
-        end
-    end)
+        end)
+        task.wait(0.1)
+    end
+end)
 
-    -- Info Tab
-    InfoTab:AddParagraph({
-        Title = "🎣 Fish World Script Hub",
-        Content = "Script executor premium untuk Fish World!"
-    })
+-- Info Tab Setup
+InfoTab:AddParagraph({
+    Title = "🎣 Fish World Script Hub",
+    Content = "Script executor premium untuk Fish World!"
+})
 
-    InfoTab:AddParagraph({
-        Title = "👤 Developer",
-        Content = "Created by Rey"
-    })
+InfoTab:AddParagraph({
+    Title = "👤 Developer",
+    Content = "Created by Rey"
+})
 
-    InfoTab:AddParagraph({
-        Title = "💬 Discord Server",
-        Content = DISCORD_LINK
-    })
+InfoTab:AddParagraph({
+    Title = "💬 Discord",
+    Content = DISCORD_LINK
+})
 
-    InfoTab:AddButton({
-        Title = "📋 Copy Discord Link",
-        Description = "Salin link Discord",
-        Callback = function()
-            setclipboard(DISCORD_LINK)
-            Fluent:Notify({
-                Title = "✅ Berhasil!",
-                Content = "Link Discord disalin!",
-                Duration = 2
-            })
-        end
-    })
+InfoTab:AddButton({
+    Title = "📋 Copy Discord Link",
+    Description = "Salin link Discord",
+    Callback = function()
+        setclipboard(DISCORD_LINK)
+        Fluent:Notify({
+            Title = "✅ Berhasil!",
+            Content = "Link disalin!",
+            Duration = 2
+        })
+    end
+})
 
-    InfoTab:AddParagraph({
-        Title = "ℹ️ Informasi",
-        Content = "Version: 1.0\nGame: Fish World\nLast Update: December 2024"
-    })
+InfoTab:AddParagraph({
+    Title = "ℹ️ Informasi",
+    Content = "Version: 1.0\nGame: Fish World\nUpdate: Dec 2024"
+})
 
-    -- Save Manager
+-- Save Manager
+pcall(function()
     SaveManager:SetLibrary(Fluent)
     InterfaceManager:SetLibrary(Fluent)
     SaveManager:BuildConfigSection(SettingsTab)
     InterfaceManager:BuildInterfaceSection(SettingsTab)
+end)
 
-    addLog("✨ Script Executor Pro dimuat!", "complete")
-    addLog("📌 Siap untuk digunakan!", "info")
-    
-    Fluent:Notify({
-        Title = "🎉 Welcome!",
-        Content = "Fish World Script Hub berhasil dimuat!",
-        Duration = 4
-    })
-end
+Fluent:Notify({
+    Title = "👋 Selamat Datang!",
+    Content = "Verifikasi key untuk mulai!",
+    Duration = 4
+})
+
+print("🎣 Fish World Script Hub loaded successfully!")
