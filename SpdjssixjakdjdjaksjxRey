@@ -26,21 +26,19 @@ local KeyWindow = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
-local KeyTabs = {
-    Verify = KeyWindow:AddTab({ Title = "Key Verification", Icon = "key" })
-}
+local KeyTab = KeyWindow:AddTab({ Title = "Key Verification", Icon = "key" })
 
-KeyTabs.Verify:AddParagraph({
+KeyTab:AddParagraph({
     Title = "🎣 Fish World Script Hub",
     Content = "Masukkan key untuk mengakses script. Dapatkan key gratis di Discord server kami!"
 })
 
-KeyTabs.Verify:AddParagraph({
+KeyTab:AddParagraph({
     Title = "💬 Join Discord Server",
     Content = "Dapatkan key gratis dengan join Discord server kami!"
 })
 
-KeyTabs.Verify:AddButton({
+KeyTab:AddButton({
     Title = "📋 Copy Discord Link",
     Description = "Salin link Discord ke clipboard",
     Callback = function()
@@ -55,7 +53,7 @@ KeyTabs.Verify:AddButton({
 
 local keyInput = ""
 
-KeyTabs.Verify:AddInput("KeyInput", {
+KeyTab:AddInput("KeyInput", {
     Title = "🔑 Masukkan Key",
     Default = "",
     Placeholder = "Key dari Discord...",
@@ -66,7 +64,7 @@ KeyTabs.Verify:AddInput("KeyInput", {
     end
 })
 
-KeyTabs.Verify:AddButton({
+KeyTab:AddButton({
     Title = "✅ Verify Key",
     Description = "Verifikasi key Anda",
     Callback = function()
@@ -90,9 +88,9 @@ KeyTabs.Verify:AddButton({
     end
 })
 
-KeyTabs.Verify:AddParagraph({
+KeyTab:AddParagraph({
     Title = "💡 Cara Mendapatkan Key",
-    Content = "1. Join Discord server\n2. Pergi ke channel #get-key\n3. Dapatkan key gratis!\n4. Masukkan key di atas"
+    Content = "1. Join Discord server\n2. Pergi ke channel #get-key\n3. Ikuti instruksi di channel\n4. Masukkan key yang didapat"
 })
 
 -- Main Script Function
@@ -211,20 +209,18 @@ function loadMainScript()
     })
 
     -- Create Tabs
-    local Tabs = {
-        Main = Window:AddTab({ Title = "Main", Icon = "zap" }),
-        Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
-        Console = Window:AddTab({ Title = "Console", Icon = "terminal" }),
-        Info = Window:AddTab({ Title = "Info", Icon = "info" })
-    }
+    local MainTab = Window:AddTab({ Title = "Main", Icon = "zap" })
+    local SettingsTab = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    local ConsoleTab = Window:AddTab({ Title = "Console", Icon = "terminal" })
+    local InfoTab = Window:AddTab({ Title = "Info", Icon = "info" })
 
     -- Main Tab
-    Tabs.Main:AddParagraph({
+    MainTab:AddParagraph({
         Title = "🎣 Script Executor Pro",
         Content = "Jalankan kedua script secara berurutan dengan delay yang dapat disesuaikan."
     })
 
-    local StatusLabel = Tabs.Main:AddParagraph({
+    local StatusLabel = MainTab:AddParagraph({
         Title = "📊 Status",
         Content = "⏳ Menunggu eksekusi..."
     })
@@ -240,7 +236,7 @@ function loadMainScript()
         end
     end)
 
-    Tabs.Main:AddButton({
+    MainTab:AddButton({
         Title = "▶️ Execute All Scripts",
         Description = "Jalankan Script 1 → Script 2",
         Callback = function()
@@ -248,7 +244,7 @@ function loadMainScript()
         end
     })
 
-    Tabs.Main:AddButton({
+    MainTab:AddButton({
         Title = "⚡ Execute Script 1 Only",
         Description = "Jalankan Script 1 saja",
         Callback = function()
@@ -262,7 +258,7 @@ function loadMainScript()
         end
     })
 
-    Tabs.Main:AddButton({
+    MainTab:AddButton({
         Title = "⚡ Execute Script 2 Only",
         Description = "Jalankan Script 2 saja",
         Callback = function()
@@ -277,12 +273,12 @@ function loadMainScript()
     })
 
     -- Settings Tab
-    Tabs.Settings:AddParagraph({
+    SettingsTab:AddParagraph({
         Title = "⚙️ Pengaturan Kecepatan",
         Content = "Atur delay eksekusi untuk setiap script (dalam detik)"
     })
 
-    local Speed1Input = Tabs.Settings:AddInput("Speed1Input", {
+    local Speed1Input = SettingsTab:AddInput("Speed1Input", {
         Title = "⚡ Delay Script 1 (detik)",
         Default = "1",
         Placeholder = "Masukkan delay...",
@@ -299,7 +295,7 @@ function loadMainScript()
         end
     })
 
-    local Speed2Input = Tabs.Settings:AddInput("Speed2Input", {
+    local Speed2Input = SettingsTab:AddInput("Speed2Input", {
         Title = "⚡ Delay Script 2 (detik)",
         Default = "1",
         Placeholder = "Masukkan delay...",
@@ -316,7 +312,7 @@ function loadMainScript()
         end
     })
 
-    Tabs.Settings:AddSlider("Slider1", {
+    SettingsTab:AddSlider("Slider1", {
         Title = "Script 1 Delay Slider",
         Description = "Gunakan slider untuk mengatur delay",
         Default = 1,
@@ -330,7 +326,7 @@ function loadMainScript()
         end
     })
 
-    Tabs.Settings:AddSlider("Slider2", {
+    SettingsTab:AddSlider("Slider2", {
         Title = "Script 2 Delay Slider",
         Description = "Gunakan slider untuk mengatur delay",
         Default = 1,
@@ -345,17 +341,17 @@ function loadMainScript()
     })
 
     -- Console Tab
-    Tabs.Console:AddParagraph({
+    ConsoleTab:AddParagraph({
         Title = "📋 Console Log",
         Content = "Monitor aktivitas script di sini"
     })
 
-    local ConsoleLabel = Tabs.Console:AddParagraph({
+    local ConsoleLabel = ConsoleTab:AddParagraph({
         Title = "Logs",
         Content = "Belum ada log..."
     })
 
-    Tabs.Console:AddButton({
+    ConsoleTab:AddButton({
         Title = "🗑️ Clear Logs",
         Description = "Hapus semua log console",
         Callback = function()
@@ -383,22 +379,22 @@ function loadMainScript()
     end)
 
     -- Info Tab
-    Tabs.Info:AddParagraph({
+    InfoTab:AddParagraph({
         Title = "🎣 Fish World Script Hub",
         Content = "Script executor premium untuk Fish World!"
     })
 
-    Tabs.Info:AddParagraph({
+    InfoTab:AddParagraph({
         Title = "👤 Developer",
         Content = "Created by Rey"
     })
 
-    Tabs.Info:AddParagraph({
+    InfoTab:AddParagraph({
         Title = "💬 Discord Server",
         Content = DISCORD_LINK
     })
 
-    Tabs.Info:AddButton({
+    InfoTab:AddButton({
         Title = "📋 Copy Discord Link",
         Description = "Salin link Discord",
         Callback = function()
@@ -411,16 +407,16 @@ function loadMainScript()
         end
     })
 
-    Tabs.Info:AddParagraph({
+    InfoTab:AddParagraph({
         Title = "ℹ️ Informasi",
-        Content = "Version: 1.0\nGame: Fish World\nLast Update: 2024"
+        Content = "Version: 1.0\nGame: Fish World\nLast Update: December 2024"
     })
 
     -- Save Manager
     SaveManager:SetLibrary(Fluent)
     InterfaceManager:SetLibrary(Fluent)
-    SaveManager:BuildConfigSection(Tabs.Settings)
-    InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+    SaveManager:BuildConfigSection(SettingsTab)
+    InterfaceManager:BuildInterfaceSection(SettingsTab)
 
     addLog("✨ Script Executor Pro dimuat!", "complete")
     addLog("📌 Siap untuk digunakan!", "info")
