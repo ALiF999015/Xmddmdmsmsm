@@ -1,102 +1,86 @@
---// Fish World Script Hub (ROBLOX VERSION)
---// By Rey | Fixed + Auto Save + Auto Login
+
+--// Fish World Script Hub (Linoria UI)
+--// By Rey | Auto Save + Auto Login
 
 -- Destroy old UI
 pcall(function()
-    game:GetService("CoreGui"):FindFirstChild("Fluent"):Destroy()
+    game:GetService("CoreGui"):FindFirstChild("Linoria") and game:GetService("CoreGui"):FindFirstChild("Linoria"):Destroy()
 end)
 
-task.wait(0.5)
-
--- Load Libraries
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+-- Load Linoria
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/Library.lua"))()
+local ThemeManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/addons/ThemeManager.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/addons/SaveManager.lua"))()
 
 -- CONFIG
 local CORRECT_KEY = "ReyScriptHubFishWorldSoOp"
-local DISCORD_LINK = "https://discord.gg/G4n8yzBx2J"
+local DISCORD = "https://discord.gg/G4n8yzBx2J"
 
 local isAuthenticated = false
 local savedKey = ""
 local speed1, speed2 = 1, 1
 local logs = {}
 
--- CLEAN KEY
-local function cleanKey(txt)
-    return tostring(txt or ""):gsub("%s+", ""):gsub("\n", "")
+-- Utils
+local function cleanKey(v)
+    return tostring(v or ""):gsub("%s+", "")
 end
 
--- LOG SYSTEM
 local function addLog(txt)
     table.insert(logs, os.date("[%H:%M:%S] ") .. txt)
-    if #logs > 15 then table.remove(logs, 1) end
+    if #logs > 20 then table.remove(logs, 1) end
 end
 
--- WINDOW
-local Window = Fluent:CreateWindow({
-    Title = "🎣 Fish World Script Hub",
-    SubTitle = "by Rey",
-    Size = UDim2.fromOffset(580, 460),
-    Theme = "Darker",
-    Acrylic = true,
-    MinimizeKey = Enum.KeyCode.LeftControl
+-- Window
+local Window = Library:CreateWindow({
+    Title = "🎣 Fish World Hub",
+    Center = true,
+    AutoShow = true,
 })
 
--- TABS
-local KeyTab = Window:AddTab({ Title = "Key", Icon = "key" })
-local MainTab = Window:AddTab({ Title = "Main", Icon = "zap" })
-local SettingsTab = Window:AddTab({ Title = "Settings", Icon = "settings" })
-local ConsoleTab = Window:AddTab({ Title = "Console", Icon = "terminal" })
-local InfoTab = Window:AddTab({ Title = "Info", Icon = "info" })
+-- Tabs
+local Tabs = {
+    Key = Window:AddTab("Key System"),
+    Main = Window:AddTab("Main"),
+    Settings = Window:AddTab("Settings"),
+    Console = Window:AddTab("Console"),
+    Info = Window:AddTab("Info")
+}
 
--- SAVE SYSTEM
-SaveManager:SetLibrary(Fluent)
-SaveManager:SetFolder("FishWorldScript")
-SaveManager:SetFile("KeySave")
+-- Save Manager
+SaveManager:SetLibrary(Library)
+SaveManager:SetFolder("FishWorldHub")
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+ThemeManager:SetLibrary(Library)
+ThemeManager:ApplyToTab(Tabs.Settings)
 
 -- KEY INPUT
-KeyTab:AddInput("KeyInput", {
-    Title = "🔑 Enter Key",
+Tabs.Key:AddInput("KeyInput", {
+    Title = "Enter Key",
     Placeholder = "Paste key here...",
-    Finished = true,
     Callback = function(v)
         savedKey = cleanKey(v)
         SaveManager:Save()
     end
 })
 
-KeyTab:AddButton({
-    Title = "✅ Verify Key",
-    Callback = function()
-        if cleanKey(savedKey) == cleanKey(CORRECT_KEY) then
-            isAuthenticated = true
-            SaveManager:Save()
-            Fluent:Notify({
-                Title = "✅ Success",
-                Content = "Key Verified!",
-                Duration = 3
-            })
-            addLog("Key verified successfully")
-        else
-            Fluent:Notify({
-                Title = "❌ Wrong Key",
-                Content = "Key invalid!",
-                Duration = 3
-            })
-        end
+Tabs.Key:AddButton("Verify Key", function()
+    if cleanKey(savedKey) == cleanKey(CORRECT_KEY) then
+        isAuthenticated = true
+        SaveManager:Save()
+        Library:Notify("Success", "Key verified!", 3)
+        addLog("Key verified")
+    else
+        Library:Notify("Error", "Invalid key!", 3)
     end
-})
+end)
 
 -- AUTO LOGIN
 task.delay(1, function()
     if cleanKey(savedKey) == cleanKey(CORRECT_KEY) then
         isAuthenticated = true
-        Fluent:Notify({
-            Title = "🔓 Auto Login",
-            Content = "Key loaded automatically",
-            Duration = 3
-        })
+        Library:Notify("Auto Login", "Key loaded successfully", 3)
     end
 end)
 
@@ -121,43 +105,34 @@ local function Script2()
     addLog("Script 2 executed")
 end
 
--- MAIN BUTTONS
-MainTab:AddButton({
-    Title = "▶ Execute All",
-    Callback = function()
-        if not isAuthenticated then return end
-        task.spawn(function()
-            Script1()
-            Script2()
-        end)
-    end
-})
+-- MAIN
+Tabs.Main:AddButton("▶ Execute All", function()
+    if not isAuthenticated then return end
+    task.spawn(function()
+        Script1()
+        Script2()
+    end)
+end)
 
-MainTab:AddButton({
-    Title = "⚡ Script 1",
-    Callback = function()
-        if isAuthenticated then task.spawn(Script1) end
-    end
-})
+Tabs.Main:AddButton("⚡ Script 1", function()
+    if isAuthenticated then task.spawn(Script1) end
+end)
 
-MainTab:AddButton({
-    Title = "⚡ Script 2",
-    Callback = function()
-        if isAuthenticated then task.spawn(Script2) end
-    end
-})
+Tabs.Main:AddButton("⚡ Script 2", function()
+    if isAuthenticated then task.spawn(Script2) end
+end)
 
 -- SETTINGS
-SettingsTab:AddSlider("S1", {
-    Title = "Delay Script 1",
+Tabs.Settings:AddSlider("Delay1", {
+    Text = "Script 1 Delay",
     Min = 0,
     Max = 10,
     Default = 1,
     Callback = function(v) speed1 = v end
 })
 
-SettingsTab:AddSlider("S2", {
-    Title = "Delay Script 2",
+Tabs.Settings:AddSlider("Delay2", {
+    Text = "Script 2 Delay",
     Min = 0,
     Max = 10,
     Default = 1,
@@ -165,26 +140,19 @@ SettingsTab:AddSlider("S2", {
 })
 
 -- CONSOLE
-local ConsoleLabel = ConsoleTab:AddParagraph({
-    Title = "Logs",
-    Content = "Waiting..."
-})
+local consoleLabel = Tabs.Console:AddLabel("Waiting...")
 
 task.spawn(function()
     while true do
-        ConsoleLabel:SetDesc(table.concat(logs, "\n"))
+        consoleLabel:SetText(table.concat(logs, "\n"))
         task.wait(0.3)
     end
 end)
 
 -- INFO
-InfoTab:AddParagraph({ Title = "Developer", Content = "Rey" })
-InfoTab:AddParagraph({ Title = "Discord", Content = DISCORD_LINK })
+Tabs.Info:AddParagraph("Developer", "Rey")
+Tabs.Info:AddParagraph("Discord", DISCORD)
 
-Fluent:Notify({
-    Title = "✅ Loaded",
-    Content = "Fish World Script Ready!",
-    Duration = 4
-})
+Library:Notify("Loaded", "Fish World Script Ready!", 4)
 
-print("✅ Fish World Script Loaded Successfully")
+print("✅ Fish World Script Loaded (Linoria UI)")
