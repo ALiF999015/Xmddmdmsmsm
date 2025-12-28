@@ -1,17 +1,12 @@
---// Fish World Script Hub - RAYFIELD STABLE VERSION
---// Made by Rey
+--// Fish World Script Hub (Rayfield UI FIXED)
+--// By Rey
 
--- Safety clear
 pcall(function()
-    if game:GetService("CoreGui"):FindFirstChild("Rayfield") then
-        game:GetService("CoreGui"):FindFirstChild("Rayfield"):Destroy()
-    end
+    game:GetService("CoreGui"):FindFirstChild("Rayfield"):Destroy()
 end)
 
--- Wait game loaded
 repeat task.wait() until game:IsLoaded()
 
--- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Rayfield/main/source"))()
 
 -- CONFIG
@@ -19,16 +14,16 @@ local KEY = "ReyScriptHubFishWorldSoOp"
 local DISCORD = "https://discord.gg/G4n8yzBx2J"
 
 local verified = false
-local speed1, speed2 = 1, 1
+local delay1 = 1
+local delay2 = 1
 local logs = {}
 
--- Helper
-local function clean(str)
-    return tostring(str or ""):gsub("%s+", "")
+local function clean(v)
+    return tostring(v or ""):gsub("%s+", "")
 end
 
-local function log(txt)
-    table.insert(logs, os.date("[%H:%M:%S] ") .. txt)
+local function log(msg)
+    table.insert(logs, os.date("[%H:%M:%S] ") .. msg)
     if #logs > 15 then table.remove(logs, 1) end
 end
 
@@ -50,19 +45,17 @@ local Window = Rayfield:CreateWindow({
     KeySystem = false
 })
 
--- Tabs
 local TabKey = Window:CreateTab("🔑 Key", 4483362458)
 local TabMain = Window:CreateTab("⚡ Main", 4483362458)
-local TabSettings = Window:CreateTab("⚙ Settings", 4483362458)
+local TabSetting = Window:CreateTab("⚙ Settings", 4483362458)
 local TabConsole = Window:CreateTab("📜 Console", 4483362458)
-local TabInfo = Window:CreateTab("ℹ Info", 4483362458)
 
 -- KEY SYSTEM
 local savedKey = ""
 
 TabKey:CreateInput({
     Name = "Enter Key",
-    PlaceholderText = "Paste your key here",
+    PlaceholderText = "Paste key here",
     RemoveTextAfterFocusLost = false,
     Callback = function(v)
         savedKey = clean(v)
@@ -102,9 +95,9 @@ task.delay(1, function()
     end
 end)
 
--- FUNCTIONS
+-- SCRIPT 1
 local function Script1()
-    task.wait(speed1)
+    task.wait(delay1)
     game:GetService("ReplicatedStorage").communication["9362e25a8d224fd987d0d3f50d8249bc"]:FireServer({
         Vector3.new(-269.9, 15.8, -262.7),
         Vector3.new(-0.43, 0, -0.9),
@@ -114,8 +107,9 @@ local function Script1()
     log("Script 1 executed")
 end
 
+-- SCRIPT 2
 local function Script2()
-    task.wait(speed2)
+    task.wait(delay2)
     game:GetService("ReplicatedStorage").communication["fc57ae91538d430fa1ff9a33be3bc18c"]:FireServer({
         true,
         Vector3.new(-274.2, 3.4, -274.8)
@@ -123,52 +117,44 @@ local function Script2()
     log("Script 2 executed")
 end
 
--- MAIN
+-- MAIN BUTTON
 TabMain:CreateButton({
-    Name = "▶ Execute All",
+    Name = "▶ Execute (Script 1 ➜ Script 2)",
     Callback = function()
-        if verified then
-            task.spawn(function()
-                Script1()
-                Script2()
-            end)
-        end
-    end
-})
-
-TabMain:CreateButton({
-    Name = "⚡ Script 1",
-    Callback = function()
-        if verified then task.spawn(Script1) end
-    end
-})
-
-TabMain:CreateButton({
-    Name = "⚡ Script 2",
-    Callback = function()
-        if verified then task.spawn(Script2) end
+        if not verified then return end
+        task.spawn(function()
+            Script1()
+            Script2()
+        end)
     end
 })
 
 -- SETTINGS
-TabSettings:CreateSlider({
-    Name = "Delay Script 1",
-    Range = {0, 10},
-    Increment = 1,
-    CurrentValue = 1,
-    Callback = function(v) speed1 = v end
+TabSetting:CreateInput({
+    Name = "Delay Script 1 (seconds)",
+    PlaceholderText = "Default: 1",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(v)
+        local n = tonumber(v)
+        if n then delay1 = n end
+    end
 })
 
-TabSettings:CreateSlider({
-    Name = "Delay Script 2",
-    Range = {0, 10},
-    Increment = 1,
-    CurrentValue = 1,
-    Callback = function(v) speed2 = v end
+TabSetting:CreateInput({
+    Name = "Delay Script 2 (seconds)",
+    PlaceholderText = "Default: 1",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(v)
+        local n = tonumber(v)
+        if n then delay2 = n end
+    end
 })
 
 -- CONSOLE
-local console = TabConsole:CreateParagraph({ Title = "Logs", Content = "Waiting..." })
+local console = TabConsole:CreateParagraph({
+    Title = "Logs",
+    Content = "Waiting..."
+})
 
 task.spawn(function()
     while true do
@@ -177,14 +163,10 @@ task.spawn(function()
     end
 end)
 
--- INFO
-TabInfo:CreateParagraph({ Title = "Developer", Content = "Rey" })
-TabInfo:CreateParagraph({ Title = "Discord", Content = DISCORD })
-
 Rayfield:Notify({
     Title = "Loaded",
     Content = "Fish World Script Ready!",
     Duration = 4
 })
 
-print("✅ Fish World Script Loaded (Rayfield)")
+print("✅ Script Loaded Successfully")
