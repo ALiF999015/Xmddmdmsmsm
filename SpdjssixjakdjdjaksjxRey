@@ -1,180 +1,151 @@
---// SIMPLE CUSTOM GUI - NO UI LIB
---// Made for Roblox Executor
---// By Rey (Fixed & Stable)
-
+--// Rey Ultimate GUI (Glow + Toggle + Save Pos)
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
--- Destroy old GUI
 pcall(function()
     game.CoreGui:FindFirstChild("ReyGui"):Destroy()
 end)
 
--- SERVICES
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
 
--- GUI
+local SAVE_FILE = "ReyGuiPos.json"
+
+-- Load saved position
+local savedPos
+pcall(function()
+    if isfile(SAVE_FILE) then
+        savedPos = HttpService:JSONDecode(readfile(SAVE_FILE))
+    end
+end)
+
+-- GUI SETUP
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ReyGui"
-ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
+ScreenGui.ResetOnSpawn = false
 
-local Main = Instance.new("Frame")
+local Main = Instance.new("Frame", ScreenGui)
 Main.Size = UDim2.new(0, 420, 0, 360)
-Main.Position = UDim2.new(0.5, -210, 0.5, -180)
-Main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Main.Position = savedPos and UDim2.new(0, savedPos.X, 0, savedPos.Y) or UDim2.new(0.5, -210, 0.5, -180)
+Main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 Main.BorderSizePixel = 0
-Main.Parent = ScreenGui
 
--- Drag
-local UIS = game:GetService("UserInputService")
-local drag, dragInput, dragStart, startPos
+-- GLOW EFFECT
+local Glow = Instance.new("UIStroke", Main)
+Glow.Thickness = 2
+Glow.Color = Color3.fromRGB(0, 170, 255)
+Glow.Transparency = 0.2
 
-Main.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        drag = true
-        dragStart = input.Position
+local Corner = Instance.new("UICorner", Main)
+Corner.CornerRadius = UDim.new(0, 12)
+
+-- TOP BAR
+local Top = Instance.new("Frame", Main)
+Top.Size = UDim2.new(1, 0, 0, 40)
+Top.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+
+local Title = Instance.new("TextLabel", Top)
+Title.Size = UDim2.new(1, -80, 1, 0)
+Title.Position = UDim2.new(0, 10, 0, 0)
+Title.Text = "🎣 Fish World - Ultimate Hub"
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+Title.TextXAlignment = Left
+
+-- MINIMIZE BUTTON
+local MinBtn = Instance.new("TextButton", Top)
+MinBtn.Size = UDim2.new(0, 35, 0, 30)
+MinBtn.Position = UDim2.new(1, -40, 0, 5)
+MinBtn.Text = "-"
+MinBtn.Font = Enum.Font.GothamBold
+MinBtn.TextSize = 22
+MinBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+MinBtn.TextColor3 = Color3.new(1,1,1)
+
+-- CONTENT
+local Content = Instance.new("Frame", Main)
+Content.Position = UDim2.new(0, 0, 0, 40)
+Content.Size = UDim2.new(1, 0, 1, -40)
+Content.BackgroundTransparency = 1
+
+-- DRAG
+local dragging, dragStart, startPos
+Top.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = i.Position
         startPos = Main.Position
     end
 end)
 
-Main.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        drag = false
+UIS.InputChanged:Connect(function(i)
+    if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = i.Position - dragStart
+        Main.Position = UDim2.new(0, startPos.X.Offset + delta.X, 0, startPos.Y.Offset + delta.Y)
     end
 end)
 
-UIS.InputChanged:Connect(function(input)
-    if drag and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        Main.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
+UIS.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+        writefile(SAVE_FILE, HttpService:JSONEncode({
+            X = Main.Position.X.Offset,
+            Y = Main.Position.Y.Offset
+        }))
     end
 end)
 
--- Title
-local Title = Instance.new("TextLabel", Main)
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.Text = "🎣 Fish World Script Hub"
-Title.TextColor3 = Color3.new(1,1,1)
-Title.BackgroundColor3 = Color3.fromRGB(35,35,35)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
+-- TOGGLE SYSTEM
+local isOn = false
 
--- Status
-local Status = Instance.new("TextLabel", Main)
-Status.Position = UDim2.new(0, 0, 0, 45)
-Status.Size = UDim2.new(1, 0, 0, 25)
+local ToggleBtn = Instance.new("TextButton", Content)
+ToggleBtn.Size = UDim2.new(0, 200, 0, 45)
+ToggleBtn.Position = UDim2.new(0, 20, 0, 30)
+ToggleBtn.Text = "🔴 OFF"
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+ToggleBtn.TextColor3 = Color3.new(1,1,1)
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.TextSize = 18
+
+local ToggleCorner = Instance.new("UICorner", ToggleBtn)
+ToggleCorner.CornerRadius = UDim.new(0, 8)
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    isOn = not isOn
+    if isOn then
+        ToggleBtn.Text = "🟢 ON"
+        ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 100)
+    else
+        ToggleBtn.Text = "🔴 OFF"
+        ToggleBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    end
+end)
+
+-- STATUS
+local Status = Instance.new("TextLabel", Content)
+Status.Position = UDim2.new(0, 20, 0, 90)
+Status.Size = UDim2.new(1, -40, 0, 30)
 Status.Text = "Status: Idle"
 Status.TextColor3 = Color3.fromRGB(200,200,200)
 Status.BackgroundTransparency = 1
 Status.Font = Enum.Font.Gotham
 Status.TextSize = 14
 
--- TEXTBOX FUNCTION
-local function createBox(text, y)
-    local box = Instance.new("TextBox", Main)
-    box.Size = UDim2.new(0, 180, 0, 35)
-    box.Position = UDim2.new(0, 20, 0, y)
-    box.Text = text
-    box.PlaceholderText = "Delay (seconds)"
-    box.BackgroundColor3 = Color3.fromRGB(40,40,40)
-    box.TextColor3 = Color3.new(1,1,1)
-    box.Font = Enum.Font.Gotham
-    box.TextSize = 14
-    return box
-end
-
-local delay1Box = createBox("1", 80)
-local delay2Box = createBox("1", 130)
-
--- BUTTON FUNCTION
-local function createBtn(text, y, callback)
-    local b = Instance.new("TextButton", Main)
-    b.Size = UDim2.new(0, 180, 0, 35)
-    b.Position = UDim2.new(0, 220, 0, y)
-    b.Text = text
-    b.BackgroundColor3 = Color3.fromRGB(60,60,60)
-    b.TextColor3 = Color3.new(1,1,1)
-    b.Font = Enum.Font.GothamBold
-    b.TextSize = 14
-    b.MouseButton1Click:Connect(callback)
-end
-
--- SCRIPT LOGIC
-local running = false
-
-local function Script1()
-    task.wait(tonumber(delay1Box.Text) or 1)
-    local args = {
-        {
-            Vector3.new(-269.97, 15.86, -262.77),
-            Vector3.new(-0.43, 0, -0.90),
-            1.95,
-            false
-        }
-    }
-    game:GetService("ReplicatedStorage")
-        :WaitForChild("communication")
-        :WaitForChild("9362e25a8d224fd987d0d3f50d8249bc")
-        :FireServer(unpack(args))
-end
-
-local function Script2()
-    task.wait(tonumber(delay2Box.Text) or 1)
-    local args = {
-        {
-            true,
-            Vector3.new(-274.28, 3.45, -274.87)
-        }
-    }
-    game:GetService("ReplicatedStorage")
-        :WaitForChild("communication")
-        :WaitForChild("fc57ae91538d430fa1ff9a33be3bc18c")
-        :FireServer(unpack(args))
-end
-
--- BUTTONS
-createBtn("▶ EXECUTE ALL", 80, function()
-    if running then return end
-    running = true
-    Status.Text = "Status: Running..."
-
-    task.spawn(function()
-        pcall(Script1)
-        pcall(Script2)
-        Status.Text = "Status: Done"
-        running = false
-    end)
+-- AUTO UPDATE STATUS
+task.spawn(function()
+    while true do
+        if isOn then
+            Status.Text = "Status: ACTIVE"
+        else
+            Status.Text = "Status: OFF"
+        end
+        task.wait(0.3)
+    end
 end)
 
-createBtn("⚡ SCRIPT 1", 130, function()
-    if running then return end
-    running = true
-    Status.Text = "Running Script 1"
-    pcall(Script1)
-    running = false
-    Status.Text = "Done"
-end)
-
-createBtn("⚡ SCRIPT 2", 180, function()
-    if running then return end
-    running = true
-    Status.Text = "Running Script 2"
-    pcall(Script2)
-    running = false
-    Status.Text = "Done"
-end)
-
-createBtn("⛔ STOP", 230, function()
-    running = false
-    Status.Text = "Stopped"
-end)
-
-print("✅ Custom GUI Loaded Successfully")
+print("🔥 Rey Ultimate GUI Loaded Successfully")
