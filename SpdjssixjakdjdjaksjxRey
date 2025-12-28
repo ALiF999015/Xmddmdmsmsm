@@ -26,19 +26,21 @@ local KeyWindow = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
-local KeyTab = KeyWindow:AddTab({ Title = "Key Verification", Icon = "key" })
+local KeyTabs = {
+    Verify = KeyWindow:AddTab({ Title = "Key Verification", Icon = "key" })
+}
 
-KeyTab:AddParagraph({
+KeyTabs.Verify:AddParagraph({
     Title = "🎣 Fish World Script Hub",
     Content = "Masukkan key untuk mengakses script. Dapatkan key gratis di Discord server kami!"
 })
 
-KeyTab:AddParagraph({
-    Title = "📌 Discord Server",
-    Content = DISCORD_LINK
+KeyTabs.Verify:AddParagraph({
+    Title = "💬 Join Discord Server",
+    Content = "Dapatkan key gratis dengan join Discord server kami!"
 })
 
-KeyTab:AddButton({
+KeyTabs.Verify:AddButton({
     Title = "📋 Copy Discord Link",
     Description = "Salin link Discord ke clipboard",
     Callback = function()
@@ -53,7 +55,7 @@ KeyTab:AddButton({
 
 local keyInput = ""
 
-KeyTab:AddInput("KeyInput", {
+KeyTabs.Verify:AddInput("KeyInput", {
     Title = "🔑 Masukkan Key",
     Default = "",
     Placeholder = "Key dari Discord...",
@@ -64,7 +66,7 @@ KeyTab:AddInput("KeyInput", {
     end
 })
 
-KeyTab:AddButton({
+KeyTabs.Verify:AddButton({
     Title = "✅ Verify Key",
     Description = "Verifikasi key Anda",
     Callback = function()
@@ -88,9 +90,9 @@ KeyTab:AddButton({
     end
 })
 
-KeyTab:AddParagraph({
-    Title = "💡 Info",
-    Content = "Key: ReyScriptHubFishWorldSoOp\n(Untuk testing, atau dapatkan dari Discord)"
+KeyTabs.Verify:AddParagraph({
+    Title = "💡 Cara Mendapatkan Key",
+    Content = "1. Join Discord server\n2. Pergi ke channel #get-key\n3. Dapatkan key gratis!\n4. Masukkan key di atas"
 })
 
 -- Main Script Function
@@ -392,12 +394,7 @@ function loadMainScript()
     })
 
     Tabs.Info:AddParagraph({
-        Title = "🔑 Key",
-        Content = "Key: ReyScriptHubFishWorldSoOp"
-    })
-
-    Tabs.Info:AddParagraph({
-        Title = "💬 Discord",
+        Title = "💬 Discord Server",
         Content = DISCORD_LINK
     })
 
@@ -414,17 +411,9 @@ function loadMainScript()
         end
     })
 
-    Tabs.Info:AddButton({
-        Title = "📋 Copy Key",
-        Description = "Salin key ke clipboard",
-        Callback = function()
-            setclipboard(CORRECT_KEY)
-            Fluent:Notify({
-                Title = "✅ Berhasil!",
-                Content = "Key disalin ke clipboard!",
-                Duration = 2
-            })
-        end
+    Tabs.Info:AddParagraph({
+        Title = "ℹ️ Informasi",
+        Content = "Version: 1.0\nGame: Fish World\nLast Update: 2024"
     })
 
     -- Save Manager
