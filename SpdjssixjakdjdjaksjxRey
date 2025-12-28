@@ -1,172 +1,180 @@
---// Fish World Script Hub (Rayfield UI FIXED)
---// By Rey
+--// SIMPLE CUSTOM GUI - NO UI LIB
+--// Made for Roblox Executor
+--// By Rey (Fixed & Stable)
 
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+-- Destroy old GUI
 pcall(function()
-    game:GetService("CoreGui"):FindFirstChild("Rayfield"):Destroy()
+    game.CoreGui:FindFirstChild("ReyGui"):Destroy()
 end)
 
-repeat task.wait() until game:IsLoaded()
+-- SERVICES
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Rayfield/main/source"))()
+-- GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ReyGui"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
 
--- CONFIG
-local KEY = "ReyScriptHubFishWorldSoOp"
-local DISCORD = "https://discord.gg/G4n8yzBx2J"
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 420, 0, 360)
+Main.Position = UDim2.new(0.5, -210, 0.5, -180)
+Main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Main.BorderSizePixel = 0
+Main.Parent = ScreenGui
 
-local verified = false
-local delay1 = 1
-local delay2 = 1
-local logs = {}
+-- Drag
+local UIS = game:GetService("UserInputService")
+local drag, dragInput, dragStart, startPos
 
-local function clean(v)
-    return tostring(v or ""):gsub("%s+", "")
-end
-
-local function log(msg)
-    table.insert(logs, os.date("[%H:%M:%S] ") .. msg)
-    if #logs > 15 then table.remove(logs, 1) end
-end
-
--- UI
-local Window = Rayfield:CreateWindow({
-    Name = "🎣 Fish World Hub",
-    LoadingTitle = "Fish World",
-    LoadingSubtitle = "by Rey",
-    ConfigurationSaving = {
-        Enabled = true,
-        FolderName = "FishWorld",
-        FileName = "Config"
-    },
-    Discord = {
-        Enabled = true,
-        Invite = "G4n8yzBx2J",
-        RememberJoins = true
-    },
-    KeySystem = false
-})
-
-local TabKey = Window:CreateTab("🔑 Key", 4483362458)
-local TabMain = Window:CreateTab("⚡ Main", 4483362458)
-local TabSetting = Window:CreateTab("⚙ Settings", 4483362458)
-local TabConsole = Window:CreateTab("📜 Console", 4483362458)
-
--- KEY SYSTEM
-local savedKey = ""
-
-TabKey:CreateInput({
-    Name = "Enter Key",
-    PlaceholderText = "Paste key here",
-    RemoveTextAfterFocusLost = false,
-    Callback = function(v)
-        savedKey = clean(v)
-    end
-})
-
-TabKey:CreateButton({
-    Name = "Verify Key",
-    Callback = function()
-        if clean(savedKey) == clean(KEY) then
-            verified = true
-            Rayfield:Notify({
-                Title = "Success",
-                Content = "Key Verified!",
-                Duration = 3
-            })
-            log("Key verified")
-        else
-            Rayfield:Notify({
-                Title = "Error",
-                Content = "Wrong key!",
-                Duration = 3
-            })
-        end
-    end
-})
-
--- AUTO LOGIN
-task.delay(1, function()
-    if clean(savedKey) == clean(KEY) then
-        verified = true
-        Rayfield:Notify({
-            Title = "Auto Login",
-            Content = "Key loaded successfully",
-            Duration = 3
-        })
+Main.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        drag = true
+        dragStart = input.Position
+        startPos = Main.Position
     end
 end)
 
--- SCRIPT 1
+Main.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        drag = false
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if drag and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        Main.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+-- Title
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "🎣 Fish World Script Hub"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundColor3 = Color3.fromRGB(35,35,35)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+
+-- Status
+local Status = Instance.new("TextLabel", Main)
+Status.Position = UDim2.new(0, 0, 0, 45)
+Status.Size = UDim2.new(1, 0, 0, 25)
+Status.Text = "Status: Idle"
+Status.TextColor3 = Color3.fromRGB(200,200,200)
+Status.BackgroundTransparency = 1
+Status.Font = Enum.Font.Gotham
+Status.TextSize = 14
+
+-- TEXTBOX FUNCTION
+local function createBox(text, y)
+    local box = Instance.new("TextBox", Main)
+    box.Size = UDim2.new(0, 180, 0, 35)
+    box.Position = UDim2.new(0, 20, 0, y)
+    box.Text = text
+    box.PlaceholderText = "Delay (seconds)"
+    box.BackgroundColor3 = Color3.fromRGB(40,40,40)
+    box.TextColor3 = Color3.new(1,1,1)
+    box.Font = Enum.Font.Gotham
+    box.TextSize = 14
+    return box
+end
+
+local delay1Box = createBox("1", 80)
+local delay2Box = createBox("1", 130)
+
+-- BUTTON FUNCTION
+local function createBtn(text, y, callback)
+    local b = Instance.new("TextButton", Main)
+    b.Size = UDim2.new(0, 180, 0, 35)
+    b.Position = UDim2.new(0, 220, 0, y)
+    b.Text = text
+    b.BackgroundColor3 = Color3.fromRGB(60,60,60)
+    b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 14
+    b.MouseButton1Click:Connect(callback)
+end
+
+-- SCRIPT LOGIC
+local running = false
+
 local function Script1()
-    task.wait(delay1)
-    game:GetService("ReplicatedStorage").communication["9362e25a8d224fd987d0d3f50d8249bc"]:FireServer({
-        Vector3.new(-269.9, 15.8, -262.7),
-        Vector3.new(-0.43, 0, -0.9),
-        1.95,
-        false
-    })
-    log("Script 1 executed")
+    task.wait(tonumber(delay1Box.Text) or 1)
+    local args = {
+        {
+            Vector3.new(-269.97, 15.86, -262.77),
+            Vector3.new(-0.43, 0, -0.90),
+            1.95,
+            false
+        }
+    }
+    game:GetService("ReplicatedStorage")
+        :WaitForChild("communication")
+        :WaitForChild("9362e25a8d224fd987d0d3f50d8249bc")
+        :FireServer(unpack(args))
 end
 
--- SCRIPT 2
 local function Script2()
-    task.wait(delay2)
-    game:GetService("ReplicatedStorage").communication["fc57ae91538d430fa1ff9a33be3bc18c"]:FireServer({
-        true,
-        Vector3.new(-274.2, 3.4, -274.8)
-    })
-    log("Script 2 executed")
+    task.wait(tonumber(delay2Box.Text) or 1)
+    local args = {
+        {
+            true,
+            Vector3.new(-274.28, 3.45, -274.87)
+        }
+    }
+    game:GetService("ReplicatedStorage")
+        :WaitForChild("communication")
+        :WaitForChild("fc57ae91538d430fa1ff9a33be3bc18c")
+        :FireServer(unpack(args))
 end
 
--- MAIN BUTTON
-TabMain:CreateButton({
-    Name = "▶ Execute (Script 1 ➜ Script 2)",
-    Callback = function()
-        if not verified then return end
-        task.spawn(function()
-            Script1()
-            Script2()
-        end)
-    end
-})
+-- BUTTONS
+createBtn("▶ EXECUTE ALL", 80, function()
+    if running then return end
+    running = true
+    Status.Text = "Status: Running..."
 
--- SETTINGS
-TabSetting:CreateInput({
-    Name = "Delay Script 1 (seconds)",
-    PlaceholderText = "Default: 1",
-    RemoveTextAfterFocusLost = false,
-    Callback = function(v)
-        local n = tonumber(v)
-        if n then delay1 = n end
-    end
-})
-
-TabSetting:CreateInput({
-    Name = "Delay Script 2 (seconds)",
-    PlaceholderText = "Default: 1",
-    RemoveTextAfterFocusLost = false,
-    Callback = function(v)
-        local n = tonumber(v)
-        if n then delay2 = n end
-    end
-})
-
--- CONSOLE
-local console = TabConsole:CreateParagraph({
-    Title = "Logs",
-    Content = "Waiting..."
-})
-
-task.spawn(function()
-    while true do
-        console:Set("Content", table.concat(logs, "\n"))
-        task.wait(0.3)
-    end
+    task.spawn(function()
+        pcall(Script1)
+        pcall(Script2)
+        Status.Text = "Status: Done"
+        running = false
+    end)
 end)
 
-Rayfield:Notify({
-    Title = "Loaded",
-    Content = "Fish World Script Ready!",
-    Duration = 4
-})
+createBtn("⚡ SCRIPT 1", 130, function()
+    if running then return end
+    running = true
+    Status.Text = "Running Script 1"
+    pcall(Script1)
+    running = false
+    Status.Text = "Done"
+end)
 
-print("✅ Script Loaded Successfully")
+createBtn("⚡ SCRIPT 2", 180, function()
+    if running then return end
+    running = true
+    Status.Text = "Running Script 2"
+    pcall(Script2)
+    running = false
+    Status.Text = "Done"
+end)
+
+createBtn("⛔ STOP", 230, function()
+    running = false
+    Status.Text = "Stopped"
+end)
+
+print("✅ Custom GUI Loaded Successfully")
