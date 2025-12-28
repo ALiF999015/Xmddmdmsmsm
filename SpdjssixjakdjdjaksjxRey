@@ -1,4 +1,5 @@
---// SIMPLE STABLE GUI (FIXED)
+--// REY GUI - CLEAR & VISIBLE VERSION
+
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 pcall(function()
@@ -7,91 +8,37 @@ end)
 
 local UIS = game:GetService("UserInputService")
 
--- GUI
+-- MAIN GUI
 local gui = Instance.new("ScreenGui", game.CoreGui)
 gui.Name = "ReyGui"
 gui.ResetOnSpawn = false
 
 local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 420, 0, 280)
-main.Position = UDim2.new(0.5, -210, 0.5, -140)
-main.BackgroundColor3 = Color3.fromRGB(25,25,25)
+main.Size = UDim2.new(0, 450, 0, 320)
+main.Position = UDim2.new(0.5, -225, 0.5, -160)
+main.BackgroundColor3 = Color3.fromRGB(30,30,30)
 main.BorderSizePixel = 0
 
 -- CORNER
-local corner = Instance.new("UICorner", main)
-corner.CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 14)
 
 -- TOP BAR
 local top = Instance.new("Frame", main)
-top.Size = UDim2.new(1,0,0,40)
-top.BackgroundColor3 = Color3.fromRGB(35,35,35)
+top.Size = UDim2.new(1,0,0,45)
+top.BackgroundColor3 = Color3.fromRGB(45,45,45)
 
 local title = Instance.new("TextLabel", top)
-title.Size = UDim2.new(1, -40, 1, 0)
-title.Position = UDim2.new(0, 10, 0, 0)
-title.Text = "🔥 Rey Script Hub"
+title.Size = UDim2.new(1,-50,1,0)
+title.Position = UDim2.new(0,15,0,0)
+title.Text = "🔥 Rey Script Panel"
 title.TextColor3 = Color3.new(1,1,1)
-title.BackgroundTransparency = 1
 title.Font = Enum.Font.GothamBold
-title.TextSize = 16
+title.TextSize = 18
+title.BackgroundTransparency = 1
 title.TextXAlignment = Left
 
--- MINIMIZE
-local minimize = Instance.new("TextButton", top)
-minimize.Size = UDim2.new(0, 30, 0, 30)
-minimize.Position = UDim2.new(1, -35, 0, 5)
-minimize.Text = "-"
-minimize.Font = Enum.Font.GothamBold
-minimize.TextSize = 20
-minimize.BackgroundColor3 = Color3.fromRGB(60,60,60)
-minimize.TextColor3 = Color3.new(1,1,1)
-
--- CONTENT
-local content = Instance.new("Frame", main)
-content.Position = UDim2.new(0,0,0,40)
-content.Size = UDim2.new(1,0,1,-40)
-content.BackgroundTransparency = 1
-
--- STATUS
-local status = Instance.new("TextLabel", content)
-status.Position = UDim2.new(0, 20, 0, 20)
-status.Size = UDim2.new(1, -40, 0, 30)
-status.Text = "Status: OFF"
-status.TextColor3 = Color3.fromRGB(200,200,200)
-status.Font = Enum.Font.Gotham
-status.TextSize = 16
-status.BackgroundTransparency = 1
-
--- TOGGLE BUTTON
-local toggle = Instance.new("TextButton", content)
-toggle.Position = UDim2.new(0, 20, 0, 70)
-toggle.Size = UDim2.new(0, 200, 0, 40)
-toggle.Text = "TURN ON"
-toggle.BackgroundColor3 = Color3.fromRGB(60,60,60)
-toggle.TextColor3 = Color3.new(1,1,1)
-toggle.Font = Enum.Font.GothamBold
-toggle.TextSize = 16
-
-local on = false
-
-toggle.MouseButton1Click:Connect(function()
-    on = not on
-    if on then
-        toggle.Text = "TURN OFF"
-        toggle.BackgroundColor3 = Color3.fromRGB(0,170,100)
-        status.Text = "Status: ON"
-    else
-        toggle.Text = "TURN ON"
-        toggle.BackgroundColor3 = Color3.fromRGB(60,60,60)
-        status.Text = "Status: OFF"
-    end
-end)
-
--- DRAG SYSTEM (WORKING)
-local dragging = false
-local dragStart, startPos
-
+-- DRAG
+local dragging, dragStart, startPos
 top.InputBegan:Connect(function(i)
     if i.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
@@ -103,12 +50,7 @@ end)
 UIS.InputChanged:Connect(function(i)
     if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = i.Position - dragStart
-        main.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
+        main.Position = UDim2.new(0, startPos.X.Offset + delta.X, 0, startPos.Y.Offset + delta.Y)
     end
 end)
 
@@ -118,11 +60,57 @@ UIS.InputEnded:Connect(function(i)
     end
 end)
 
--- MINIMIZE
-local minimized = false
-minimize.MouseButton1Click:Connect(function()
-    minimized = not minimized
-    content.Visible = not minimized
+-- CONTENT BOX
+local box = Instance.new("Frame", main)
+box.Position = UDim2.new(0, 15, 0, 60)
+box.Size = UDim2.new(1, -30, 1, -75)
+box.BackgroundColor3 = Color3.fromRGB(40,40,40)
+Instance.new("UICorner", box).CornerRadius = UDim.new(0, 10)
+
+-- TITLE
+local info = Instance.new("TextLabel", box)
+info.Size = UDim2.new(1, -20, 0, 40)
+info.Position = UDim2.new(0, 10, 0, 10)
+info.Text = "Status Panel"
+info.TextColor3 = Color3.new(1,1,1)
+info.Font = Enum.Font.GothamBold
+info.TextSize = 16
+info.BackgroundTransparency = 1
+
+-- STATUS
+local status = Instance.new("TextLabel", box)
+status.Position = UDim2.new(0, 10, 0, 55)
+status.Size = UDim2.new(1, -20, 0, 30)
+status.Text = "Status: OFF"
+status.TextColor3 = Color3.fromRGB(200,200,200)
+status.Font = Enum.Font.Gotham
+status.TextSize = 14
+status.BackgroundTransparency = 1
+
+-- BUTTON
+local btn = Instance.new("TextButton", box)
+btn.Position = UDim2.new(0, 10, 0, 95)
+btn.Size = UDim2.new(0, 200, 40)
+btn.Text = "TURN ON"
+btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+btn.TextColor3 = Color3.new(1,1,1)
+btn.Font = Enum.Font.GothamBold
+btn.TextSize = 16
+Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+
+local enabled = false
+
+btn.MouseButton1Click:Connect(function()
+    enabled = not enabled
+    if enabled then
+        btn.Text = "TURN OFF"
+        btn.BackgroundColor3 = Color3.fromRGB(0,170,120)
+        status.Text = "Status: ACTIVE"
+    else
+        btn.Text = "TURN ON"
+        btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+        status.Text = "Status: OFF"
+    end
 end)
 
-print("✅ GUI Loaded Successfully")
+print("✅ GUI Loaded - Visible & Working")
