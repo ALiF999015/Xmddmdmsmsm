@@ -1,90 +1,108 @@
+--// Fish World Script Hub - RAYFIELD STABLE VERSION
+--// Made by Rey
 
---// Fish World Script Hub (Linoria UI)
---// By Rey | Auto Save + Auto Login
-
--- Destroy old UI
+-- Safety clear
 pcall(function()
-    game:GetService("CoreGui"):FindFirstChild("Linoria") and game:GetService("CoreGui"):FindFirstChild("Linoria"):Destroy()
+    if game:GetService("CoreGui"):FindFirstChild("Rayfield") then
+        game:GetService("CoreGui"):FindFirstChild("Rayfield"):Destroy()
+    end
 end)
 
--- Load Linoria
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/Library.lua"))()
-local ThemeManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/addons/ThemeManager.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/addons/SaveManager.lua"))()
+-- Wait game loaded
+repeat task.wait() until game:IsLoaded()
+
+-- Load Rayfield
+local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Rayfield/main/source"))()
 
 -- CONFIG
-local CORRECT_KEY = "ReyScriptHubFishWorldSoOp"
+local KEY = "ReyScriptHubFishWorldSoOp"
 local DISCORD = "https://discord.gg/G4n8yzBx2J"
 
-local isAuthenticated = false
-local savedKey = ""
+local verified = false
 local speed1, speed2 = 1, 1
 local logs = {}
 
--- Utils
-local function cleanKey(v)
-    return tostring(v or ""):gsub("%s+", "")
+-- Helper
+local function clean(str)
+    return tostring(str or ""):gsub("%s+", "")
 end
 
-local function addLog(txt)
+local function log(txt)
     table.insert(logs, os.date("[%H:%M:%S] ") .. txt)
-    if #logs > 20 then table.remove(logs, 1) end
+    if #logs > 15 then table.remove(logs, 1) end
 end
 
--- Window
-local Window = Library:CreateWindow({
-    Title = "🎣 Fish World Hub",
-    Center = true,
-    AutoShow = true,
+-- UI
+local Window = Rayfield:CreateWindow({
+    Name = "🎣 Fish World Hub",
+    LoadingTitle = "Fish World",
+    LoadingSubtitle = "by Rey",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "FishWorld",
+        FileName = "Config"
+    },
+    Discord = {
+        Enabled = true,
+        Invite = "G4n8yzBx2J",
+        RememberJoins = true
+    },
+    KeySystem = false
 })
 
 -- Tabs
-local Tabs = {
-    Key = Window:AddTab("Key System"),
-    Main = Window:AddTab("Main"),
-    Settings = Window:AddTab("Settings"),
-    Console = Window:AddTab("Console"),
-    Info = Window:AddTab("Info")
-}
+local TabKey = Window:CreateTab("🔑 Key", 4483362458)
+local TabMain = Window:CreateTab("⚡ Main", 4483362458)
+local TabSettings = Window:CreateTab("⚙ Settings", 4483362458)
+local TabConsole = Window:CreateTab("📜 Console", 4483362458)
+local TabInfo = Window:CreateTab("ℹ Info", 4483362458)
 
--- Save Manager
-SaveManager:SetLibrary(Library)
-SaveManager:SetFolder("FishWorldHub")
-SaveManager:BuildConfigSection(Tabs.Settings)
+-- KEY SYSTEM
+local savedKey = ""
 
-ThemeManager:SetLibrary(Library)
-ThemeManager:ApplyToTab(Tabs.Settings)
-
--- KEY INPUT
-Tabs.Key:AddInput("KeyInput", {
-    Title = "Enter Key",
-    Placeholder = "Paste key here...",
+TabKey:CreateInput({
+    Name = "Enter Key",
+    PlaceholderText = "Paste your key here",
+    RemoveTextAfterFocusLost = false,
     Callback = function(v)
-        savedKey = cleanKey(v)
-        SaveManager:Save()
+        savedKey = clean(v)
     end
 })
 
-Tabs.Key:AddButton("Verify Key", function()
-    if cleanKey(savedKey) == cleanKey(CORRECT_KEY) then
-        isAuthenticated = true
-        SaveManager:Save()
-        Library:Notify("Success", "Key verified!", 3)
-        addLog("Key verified")
-    else
-        Library:Notify("Error", "Invalid key!", 3)
+TabKey:CreateButton({
+    Name = "Verify Key",
+    Callback = function()
+        if clean(savedKey) == clean(KEY) then
+            verified = true
+            Rayfield:Notify({
+                Title = "Success",
+                Content = "Key Verified!",
+                Duration = 3
+            })
+            log("Key verified")
+        else
+            Rayfield:Notify({
+                Title = "Error",
+                Content = "Wrong key!",
+                Duration = 3
+            })
+        end
     end
-end)
+})
 
 -- AUTO LOGIN
 task.delay(1, function()
-    if cleanKey(savedKey) == cleanKey(CORRECT_KEY) then
-        isAuthenticated = true
-        Library:Notify("Auto Login", "Key loaded successfully", 3)
+    if clean(savedKey) == clean(KEY) then
+        verified = true
+        Rayfield:Notify({
+            Title = "Auto Login",
+            Content = "Key loaded successfully",
+            Duration = 3
+        })
     end
 end)
 
--- SCRIPT FUNCTIONS
+-- FUNCTIONS
 local function Script1()
     task.wait(speed1)
     game:GetService("ReplicatedStorage").communication["9362e25a8d224fd987d0d3f50d8249bc"]:FireServer({
@@ -93,7 +111,7 @@ local function Script1()
         1.95,
         false
     })
-    addLog("Script 1 executed")
+    log("Script 1 executed")
 end
 
 local function Script2()
@@ -102,57 +120,71 @@ local function Script2()
         true,
         Vector3.new(-274.2, 3.4, -274.8)
     })
-    addLog("Script 2 executed")
+    log("Script 2 executed")
 end
 
 -- MAIN
-Tabs.Main:AddButton("▶ Execute All", function()
-    if not isAuthenticated then return end
-    task.spawn(function()
-        Script1()
-        Script2()
-    end)
-end)
+TabMain:CreateButton({
+    Name = "▶ Execute All",
+    Callback = function()
+        if verified then
+            task.spawn(function()
+                Script1()
+                Script2()
+            end)
+        end
+    end
+})
 
-Tabs.Main:AddButton("⚡ Script 1", function()
-    if isAuthenticated then task.spawn(Script1) end
-end)
+TabMain:CreateButton({
+    Name = "⚡ Script 1",
+    Callback = function()
+        if verified then task.spawn(Script1) end
+    end
+})
 
-Tabs.Main:AddButton("⚡ Script 2", function()
-    if isAuthenticated then task.spawn(Script2) end
-end)
+TabMain:CreateButton({
+    Name = "⚡ Script 2",
+    Callback = function()
+        if verified then task.spawn(Script2) end
+    end
+})
 
 -- SETTINGS
-Tabs.Settings:AddSlider("Delay1", {
-    Text = "Script 1 Delay",
-    Min = 0,
-    Max = 10,
-    Default = 1,
+TabSettings:CreateSlider({
+    Name = "Delay Script 1",
+    Range = {0, 10},
+    Increment = 1,
+    CurrentValue = 1,
     Callback = function(v) speed1 = v end
 })
 
-Tabs.Settings:AddSlider("Delay2", {
-    Text = "Script 2 Delay",
-    Min = 0,
-    Max = 10,
-    Default = 1,
+TabSettings:CreateSlider({
+    Name = "Delay Script 2",
+    Range = {0, 10},
+    Increment = 1,
+    CurrentValue = 1,
     Callback = function(v) speed2 = v end
 })
 
 -- CONSOLE
-local consoleLabel = Tabs.Console:AddLabel("Waiting...")
+local console = TabConsole:CreateParagraph({ Title = "Logs", Content = "Waiting..." })
 
 task.spawn(function()
     while true do
-        consoleLabel:SetText(table.concat(logs, "\n"))
+        console:Set("Content", table.concat(logs, "\n"))
         task.wait(0.3)
     end
 end)
 
 -- INFO
-Tabs.Info:AddParagraph("Developer", "Rey")
-Tabs.Info:AddParagraph("Discord", DISCORD)
+TabInfo:CreateParagraph({ Title = "Developer", Content = "Rey" })
+TabInfo:CreateParagraph({ Title = "Discord", Content = DISCORD })
 
-Library:Notify("Loaded", "Fish World Script Ready!", 4)
+Rayfield:Notify({
+    Title = "Loaded",
+    Content = "Fish World Script Ready!",
+    Duration = 4
+})
 
-print("✅ Fish World Script Loaded (Linoria UI)")
+print("✅ Fish World Script Loaded (Rayfield)")
