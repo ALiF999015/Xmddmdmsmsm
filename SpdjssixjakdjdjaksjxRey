@@ -1,5 +1,5 @@
 -- Fish World Script Hub (FINAL FIX)
--- Created by Rey | Fixed by ChatGPT
+-- Created by Rey | Fixed by ReyX And Varo
 
 -- =========================
 -- SAFE CLIPBOARD
@@ -86,6 +86,17 @@ Instance.new("UICorner", Close)
 Close.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
+
+-- =========================
+-- CONTENT FRAME (FIX BLANK UI)
+-- =========================
+local Content = Instance.new("Frame", MainFrame)
+Content.Position = UDim2.new(0, 10, 0, 60)
+Content.Size = UDim2.new(1, -20, 1, -70)
+Content.BackgroundColor3 = Color3.fromRGB(18,18,22)
+Content.BorderSizePixel = 0
+Content.ZIndex = 2
+Instance.new("UICorner", Content)
 
 -- =========================
 -- DRAG SYSTEM (FIX)
@@ -182,13 +193,15 @@ end
 -- BUTTONS
 -- =========================
 local function makeButton(text, y, callback)
-    local b = Instance.new("TextButton", MainFrame)
-    b.Size = UDim2.new(0,200,0,40)
-    b.Position = UDim2.new(0,20,0,y)
+    local b = Instance.new("TextButton", Content)
+    b.Size = UDim2.new(0, 200, 0, 40)
+    b.Position = UDim2.new(0, 20, 0, y)
     b.Text = text
     b.BackgroundColor3 = Color3.fromRGB(80,160,255)
     b.TextColor3 = Color3.new(1,1,1)
     b.Font = Enum.Font.GothamBold
+    b.TextSize = 14
+    b.ZIndex = 3
     Instance.new("UICorner", b)
     b.MouseButton1Click:Connect(callback)
 end
@@ -222,9 +235,9 @@ end)
 -- =========================
 -- CONSOLE
 -- =========================
-local Console = Instance.new("TextBox", MainFrame)
-Console.Position = UDim2.new(0,250,0,70)
-Console.Size = UDim2.new(0,280,0,300)
+local Console = Instance.new("TextBox", Content)
+Console.Position = UDim2.new(0, 240, 0, 10)
+Console.Size = UDim2.new(1, -250, 1, -20)
 Console.TextWrapped = true
 Console.TextYAlignment = Top
 Console.ClearTextOnFocus = false
@@ -234,6 +247,7 @@ Console.Font = Enum.Font.Code
 Console.TextSize = 12
 Console.TextColor3 = Color3.fromRGB(0,255,150)
 Console.BackgroundColor3 = Color3.fromRGB(15,15,20)
+Console.ZIndex = 3
 Instance.new("UICorner", Console)
 
 -- =========================
@@ -244,3 +258,6 @@ task.spawn(function()
         Console.Text = table.concat(logs, "\n")
     end
 end)
+
+addLog("✅ UI Loaded Successfully")
+addLog("🔓 Ready to use")
