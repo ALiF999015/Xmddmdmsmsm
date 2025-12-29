@@ -1,5 +1,5 @@
--- Fish World Script Hub (FIXED VERSION)
--- Created by Rey | Fixed by ReyX And Varo
+-- Fish World Script Hub (FINAL FIX)
+-- Created by Rey | Fixed by ChatGPT
 
 -- =========================
 -- SAFE CLIPBOARD
@@ -34,15 +34,19 @@ pcall(function()
 end)
 
 -- =========================
--- GUI SETUP
+-- SERVICES
 -- =========================
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local RS = game:GetService("ReplicatedStorage")
 
+-- =========================
+-- GUI SETUP
+-- =========================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "FishWorldHub"
-ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = game:GetService("CoreGui")
 
 local MainFrame = Instance.new("Frame", ScreenGui)
@@ -50,19 +54,18 @@ MainFrame.Size = UDim2.new(0, 550, 0, 400)
 MainFrame.Position = UDim2.new(0.5, -275, 0.5, -200)
 MainFrame.BackgroundColor3 = Color3.fromRGB(20,20,25)
 MainFrame.BorderSizePixel = 0
-
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0,12)
 
 -- =========================
 -- HEADER
 -- =========================
 local Header = Instance.new("Frame", MainFrame)
-Header.Size = UDim2.new(1,0,0,50)
+Header.Size = UDim2.new(1,0,0,45)
 Header.BackgroundColor3 = Color3.fromRGB(30,30,35)
 Instance.new("UICorner", Header).CornerRadius = UDim.new(0,12)
 
 local Title = Instance.new("TextLabel", Header)
-Title.Size = UDim2.new(1,-100,1,0)
+Title.Size = UDim2.new(1,-120,1,0)
 Title.Position = UDim2.new(0,15,0,0)
 Title.BackgroundTransparency = 1
 Title.Text = "🎣 Fish World Script Hub"
@@ -73,7 +76,7 @@ Title.TextXAlignment = Left
 
 local Close = Instance.new("TextButton", Header)
 Close.Size = UDim2.new(0,35,0,35)
-Close.Position = UDim2.new(1,-45,0,7)
+Close.Position = UDim2.new(1,-45,0,5)
 Close.Text = "X"
 Close.Font = Enum.Font.GothamBold
 Close.TextColor3 = Color3.new(1,1,1)
@@ -85,17 +88,53 @@ Close.MouseButton1Click:Connect(function()
 end)
 
 -- =========================
+-- DRAG SYSTEM (FIX)
+-- =========================
+do
+    local dragging, dragStart, startPos
+
+    Header.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = MainFrame.Position
+        end
+    end)
+
+    Header.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            MainFrame.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+end
+
+-- =========================
 -- LOG SYSTEM
 -- =========================
 local function addLog(msg)
     table.insert(logs, "["..os.date("%H:%M:%S").."] "..msg)
     if #logs > 50 then
-        table.remove(logs,1)
+        table.remove(logs, 1)
     end
 end
 
 -- =========================
--- EXECUTE FUNCTIONS
+-- EXEC FUNCTIONS
 -- =========================
 local function executeScript1()
     addLog("🚀 Menjalankan Script 1")
@@ -103,16 +142,10 @@ local function executeScript1()
 
     pcall(function()
         local comm = RS:FindFirstChild("communication")
-        if not comm then
-            addLog("❌ communication tidak ditemukan")
-            return
-        end
+        if not comm then return addLog("❌ communication tidak ditemukan") end
 
         local remote = comm:FindFirstChild("9362e25a8d224fd987d0d3f50d8249bc")
-        if not remote then
-            addLog("❌ Remote Script 1 tidak ditemukan")
-            return
-        end
+        if not remote then return addLog("❌ Remote 1 tidak ditemukan") end
 
         remote:FireServer({
             Vector3.new(-269.97, 15.86, -262.77),
@@ -131,16 +164,10 @@ local function executeScript2()
 
     pcall(function()
         local comm = RS:FindFirstChild("communication")
-        if not comm then
-            addLog("❌ communication tidak ditemukan")
-            return
-        end
+        if not comm then return addLog("❌ communication tidak ditemukan") end
 
         local remote = comm:FindFirstChild("fc57ae91538d430fa1ff9a33be3bc18c")
-        if not remote then
-            addLog("❌ Remote Script 2 tidak ditemukan")
-            return
-        end
+        if not remote then return addLog("❌ Remote 2 tidak ditemukan") end
 
         remote:FireServer({
             true,
@@ -152,26 +179,7 @@ local function executeScript2()
 end
 
 -- =========================
--- EXECUTOR
--- =========================
-local function runAll()
-    if not isAuthenticated then
-        addLog("🔒 Key belum diverifikasi")
-        return
-    end
-    if isExecuting then return end
-
-    isExecuting = true
-    task.spawn(function()
-        executeScript1()
-        executeScript2()
-        addLog("🎉 Semua selesai")
-        isExecuting = false
-    end)
-end
-
--- =========================
--- SIMPLE UI BUTTONS
+-- BUTTONS
 -- =========================
 local function makeButton(text, y, callback)
     local b = Instance.new("TextButton", MainFrame)
@@ -185,21 +193,29 @@ local function makeButton(text, y, callback)
     b.MouseButton1Click:Connect(callback)
 end
 
--- =========================
--- BUTTONS
--- =========================
 makeButton("Verify Key", 70, function()
     isAuthenticated = true
     addLog("✅ Key Valid")
 end)
 
-makeButton("Execute All", 120, runAll)
+makeButton("Execute All", 120, function()
+    if not isAuthenticated then
+        addLog("🔒 Key belum diverifikasi")
+        return
+    end
+    if isExecuting then return end
+    isExecuting = true
+    task.spawn(function()
+        executeScript1()
+        executeScript2()
+        addLog("🎉 Selesai")
+        isExecuting = false
+    end)
+end)
 
 makeButton("Copy Discord", 170, function()
     if safeClipboard(DISCORD_LINK) then
         addLog("📋 Link disalin")
-    else
-        addLog("❌ Clipboard tidak didukung")
     end
 end)
 
@@ -221,7 +237,7 @@ Console.BackgroundColor3 = Color3.fromRGB(15,15,20)
 Instance.new("UICorner", Console)
 
 -- =========================
--- UPDATE LOOP
+-- AUTO UPDATE CONSOLE
 -- =========================
 task.spawn(function()
     while task.wait(0.3) do
