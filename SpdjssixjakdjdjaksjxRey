@@ -1,10 +1,9 @@
---// Rey Script Hub - Sequence Executor
+--// Rey Script Hub - Sequence Executor (Updated)
 
 if game.CoreGui:FindFirstChild("ReyScriptHub") then
     game.CoreGui.ReyScriptHub:Destroy()
 end
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- GUI
@@ -18,14 +17,13 @@ Main.Position = UDim2.new(0.5, -170, 0.5, -130)
 Main.BackgroundColor3 = Color3.fromRGB(25,25,25)
 Main.Active = true
 Main.Draggable = true
-
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0,12)
 
 -- Title
 local Title = Instance.new("TextLabel", Main)
 Title.Size = UDim2.new(1,0,0,40)
-Title.Text = "🔥 Rey Script Hub"
 Title.BackgroundTransparency = 1
+Title.Text = "🔥 Rey Script Hub"
 Title.TextColor3 = Color3.fromRGB(255,255,255)
 Title.Font = Enum.Font.GothamBold
 Title.TextScaled = true
@@ -34,7 +32,7 @@ Title.TextScaled = true
 local Delay1 = Instance.new("TextBox", Main)
 Delay1.Size = UDim2.new(0.8,0,0,35)
 Delay1.Position = UDim2.new(0.1,0,0.25,0)
-Delay1.PlaceholderText = "Delay Script 1 (contoh: 1.5)"
+Delay1.PlaceholderText = "Delay Script 1 (detik)"
 Delay1.Text = "1"
 Delay1.BackgroundColor3 = Color3.fromRGB(40,40,40)
 Delay1.TextColor3 = Color3.fromRGB(255,255,255)
@@ -46,7 +44,7 @@ Instance.new("UICorner", Delay1)
 local Delay2 = Instance.new("TextBox", Main)
 Delay2.Size = UDim2.new(0.8,0,0,35)
 Delay2.Position = UDim2.new(0.1,0,0.42,0)
-Delay2.PlaceholderText = "Delay Script 2 (contoh: 0.5)"
+Delay2.PlaceholderText = "Delay Script 2 (detik)"
 Delay2.Text = "1"
 Delay2.BackgroundColor3 = Color3.fromRGB(40,40,40)
 Delay2.TextColor3 = Color3.fromRGB(255,255,255)
@@ -88,14 +86,14 @@ local function runScripts()
 		-- SCRIPT 1
 		local args1 = {
 			{
-				vector.create(-269.9783020019531, 15.866171836853027, -262.7765197753906),
-				vector.create(-0.4332737326622009, -2.7589200257693847e-08, -0.9012624025344849),
-				1.9519617557525635,
+				vector.create(-277.27850341796875, 15.955794334411621, -170.72816467285156),
+				vector.create(-0.6879132390022278, -3.0437064424404525e-08, -0.7257929444313049),
+				1.9684292674064636,
 				false
 			}
 		}
 		ReplicatedStorage:WaitForChild("communication")
-			:WaitForChild("9362e25a8d224fd987d0d3f50d8249bc")
+			:WaitForChild("e77e6f17b10845c084872167e63ce023")
 			:FireServer(unpack(args1))
 
 		task.wait(d1)
@@ -104,11 +102,11 @@ local function runScripts()
 		local args2 = {
 			{
 				true,
-				vector.create(-274.2834777832031, 3.4583072662353516, -274.8772277832031)
+				vector.create(-285.86688232421875, 3.4865164756774902, -180.169921875)
 			}
 		}
 		ReplicatedStorage:WaitForChild("communication")
-			:WaitForChild("fc57ae91538d430fa1ff9a33be3bc18c")
+			:WaitForChild("7b0c4d4af675443d9e585631fce48073")
 			:FireServer(unpack(args2))
 
 		task.wait(d2)
@@ -132,4 +130,4 @@ Toggle.MouseButton1Click:Connect(function()
 	end
 end)
 
-print("✅ Script Loaded Successfully")
+print("✅ Rey Script Hub Loaded Successfully")
