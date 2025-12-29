@@ -1,99 +1,135 @@
---// Rey Script Hub - Fixed GUI
---// Full Fix + Draggable + Toggle
---// No Error Guaranteed
+--// Rey Script Hub - Sequence Executor
 
--- =========================
--- SAFE CHECK
--- =========================
 if game.CoreGui:FindFirstChild("ReyScriptHub") then
     game.CoreGui.ReyScriptHub:Destroy()
 end
 
--- =========================
--- MAIN GUI
--- =========================
-local ScreenGui = Instance.new("ScreenGui")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- GUI
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 ScreenGui.Name = "ReyScriptHub"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = game.CoreGui
 
-local Main = Instance.new("Frame")
-Main.Parent = ScreenGui
-Main.Size = UDim2.new(0, 320, 0, 200)
-Main.Position = UDim2.new(0.5, -160, 0.5, -100)
-Main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-Main.BorderSizePixel = 0
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 340, 0, 260)
+Main.Position = UDim2.new(0.5, -170, 0.5, -130)
+Main.BackgroundColor3 = Color3.fromRGB(25,25,25)
 Main.Active = true
 Main.Draggable = true
 
--- UI Corner
-local corner = Instance.new("UICorner", Main)
-corner.CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0,12)
 
--- =========================
--- TITLE
--- =========================
-local Title = Instance.new("TextLabel")
-Title.Parent = Main
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.Position = UDim2.new(0, 0, 0, 0)
-Title.BackgroundTransparency = 1
+-- Title
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1,0,0,40)
 Title.Text = "🔥 Rey Script Hub"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.fromRGB(255,255,255)
 Title.Font = Enum.Font.GothamBold
 Title.TextScaled = true
-Title.TextXAlignment = Enum.TextXAlignment.Center
-Title.TextYAlignment = Enum.TextYAlignment.Center
 
--- =========================
--- TOGGLE BUTTON
--- =========================
-local Toggle = Instance.new("TextButton")
-Toggle.Parent = Main
-Toggle.Size = UDim2.new(0.8, 0, 0, 40)
-Toggle.Position = UDim2.new(0.1, 0, 0.45, 0)
-Toggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Toggle.Text = "ENABLE"
-Toggle.TextColor3 = Color3.fromRGB(0, 255, 0)
-Toggle.Font = Enum.Font.GothamBold
-Toggle.TextScaled = true
-Toggle.AutoButtonColor = true
+-- Delay 1
+local Delay1 = Instance.new("TextBox", Main)
+Delay1.Size = UDim2.new(0.8,0,0,35)
+Delay1.Position = UDim2.new(0.1,0,0.25,0)
+Delay1.PlaceholderText = "Delay Script 1 (contoh: 1.5)"
+Delay1.Text = "1"
+Delay1.BackgroundColor3 = Color3.fromRGB(40,40,40)
+Delay1.TextColor3 = Color3.fromRGB(255,255,255)
+Delay1.Font = Enum.Font.Gotham
+Delay1.TextScaled = true
+Instance.new("UICorner", Delay1)
 
-local ToggleCorner = Instance.new("UICorner", Toggle)
-ToggleCorner.CornerRadius = UDim.new(0, 10)
+-- Delay 2
+local Delay2 = Instance.new("TextBox", Main)
+Delay2.Size = UDim2.new(0.8,0,0,35)
+Delay2.Position = UDim2.new(0.1,0,0.42,0)
+Delay2.PlaceholderText = "Delay Script 2 (contoh: 0.5)"
+Delay2.Text = "1"
+Delay2.BackgroundColor3 = Color3.fromRGB(40,40,40)
+Delay2.TextColor3 = Color3.fromRGB(255,255,255)
+Delay2.Font = Enum.Font.Gotham
+Delay2.TextScaled = true
+Instance.new("UICorner", Delay2)
 
--- =========================
--- STATUS
--- =========================
-local Status = Instance.new("TextLabel")
-Status.Parent = Main
-Status.Size = UDim2.new(1, 0, 0, 30)
-Status.Position = UDim2.new(0, 0, 1, -35)
+-- Status
+local Status = Instance.new("TextLabel", Main)
+Status.Size = UDim2.new(1,0,0,30)
+Status.Position = UDim2.new(0,0,1,-35)
 Status.BackgroundTransparency = 1
 Status.Text = "Status: OFF"
-Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+Status.TextColor3 = Color3.fromRGB(255,80,80)
 Status.Font = Enum.Font.Gotham
 Status.TextScaled = true
 
--- =========================
--- TOGGLE FUNCTION
--- =========================
-local Enabled = false
+-- Toggle Button
+local Toggle = Instance.new("TextButton", Main)
+Toggle.Size = UDim2.new(0.8,0,0,40)
+Toggle.Position = UDim2.new(0.1,0,0.6,0)
+Toggle.Text = "START"
+Toggle.BackgroundColor3 = Color3.fromRGB(40,40,40)
+Toggle.TextColor3 = Color3.fromRGB(0,255,0)
+Toggle.Font = Enum.Font.GothamBold
+Toggle.TextScaled = true
+Instance.new("UICorner", Toggle)
+
+-------------------------------------------------
+-- LOGIC
+-------------------------------------------------
+local running = false
+
+local function runScripts()
+	while running do
+		local d1 = tonumber(Delay1.Text) or 1
+		local d2 = tonumber(Delay2.Text) or 1
+
+		-- SCRIPT 1
+		local args1 = {
+			{
+				vector.create(-269.9783020019531, 15.866171836853027, -262.7765197753906),
+				vector.create(-0.4332737326622009, -2.7589200257693847e-08, -0.9012624025344849),
+				1.9519617557525635,
+				false
+			}
+		}
+		ReplicatedStorage:WaitForChild("communication")
+			:WaitForChild("9362e25a8d224fd987d0d3f50d8249bc")
+			:FireServer(unpack(args1))
+
+		task.wait(d1)
+
+		-- SCRIPT 2
+		local args2 = {
+			{
+				true,
+				vector.create(-274.2834777832031, 3.4583072662353516, -274.8772277832031)
+			}
+		}
+		ReplicatedStorage:WaitForChild("communication")
+			:WaitForChild("fc57ae91538d430fa1ff9a33be3bc18c")
+			:FireServer(unpack(args2))
+
+		task.wait(d2)
+	end
+end
 
 Toggle.MouseButton1Click:Connect(function()
-    Enabled = not Enabled
+	running = not running
 
-    if Enabled then
-        Toggle.Text = "DISABLE"
-        Toggle.TextColor3 = Color3.fromRGB(255, 80, 80)
-        Status.Text = "Status: ON"
-        Status.TextColor3 = Color3.fromRGB(0, 255, 0)
-    else
-        Toggle.Text = "ENABLE"
-        Toggle.TextColor3 = Color3.fromRGB(0, 255, 0)
-        Status.Text = "Status: OFF"
-        Status.TextColor3 = Color3.fromRGB(255, 80, 80)
-    end
+	if running then
+		Status.Text = "Status: RUNNING"
+		Status.TextColor3 = Color3.fromRGB(0,255,0)
+		Toggle.Text = "STOP"
+		Toggle.TextColor3 = Color3.fromRGB(255,80,80)
+		task.spawn(runScripts)
+	else
+		Status.Text = "Status: OFF"
+		Status.TextColor3 = Color3.fromRGB(255,80,80)
+		Toggle.Text = "START"
+		Toggle.TextColor3 = Color3.fromRGB(0,255,0)
+	end
 end)
 
-print("✅ Rey Script Hub Loaded Successfully")
+print("✅ Script Loaded Successfully")
