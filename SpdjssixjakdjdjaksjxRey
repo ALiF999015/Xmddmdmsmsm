@@ -1,115 +1,628 @@
---// REY GUI FIXED (ANTI KOSONG & ANTI KETUTUP)
+-- Fish World Script Hub - Custom GUI
+-- Created by Rey
 
-if not game:IsLoaded() then game.Loaded:Wait() end
+-- Configuration
+local CORRECT_KEY = "ReyScriptHubFishWorldSoOp"
+local DISCORD_LINK = "https://discord.gg/G4n8yzBx2J"
 
-pcall(function()
-    game.CoreGui:FindFirstChild("ReyGui"):Destroy()
+-- Variables
+local isAuthenticated = false
+local speed1 = 1
+local speed2 = 1
+local isExecuting = false
+local logs = {}
+
+-- Create ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FishWorldHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Check if already exists
+if game:GetService("CoreGui"):FindFirstChild("FishWorldHub") then
+    game:GetService("CoreGui"):FindFirstChild("FishWorldHub"):Destroy()
+end
+
+ScreenGui.Parent = game:GetService("CoreGui")
+
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 550, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -275, 0.5, -200)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+-- Add rounded corners
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = MainFrame
+
+-- Add shadow effect
+local Shadow = Instance.new("ImageLabel")
+Shadow.Name = "Shadow"
+Shadow.Size = UDim2.new(1, 30, 1, 30)
+Shadow.Position = UDim2.new(0, -15, 0, -15)
+Shadow.BackgroundTransparency = 1
+Shadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+Shadow.ImageTransparency = 0.5
+Shadow.ScaleType = Enum.ScaleType.Slice
+Shadow.SliceCenter = Rect.new(10, 10, 10, 10)
+Shadow.ZIndex = 0
+Shadow.Parent = MainFrame
+
+-- Header
+local Header = Instance.new("Frame")
+Header.Name = "Header"
+Header.Size = UDim2.new(1, 0, 0, 50)
+Header.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+Header.BorderSizePixel = 0
+Header.Parent = MainFrame
+
+local HeaderCorner = Instance.new("UICorner")
+HeaderCorner.CornerRadius = UDim.new(0, 12)
+HeaderCorner.Parent = Header
+
+-- Fix corner at bottom
+local HeaderFix = Instance.new("Frame")
+HeaderFix.Size = UDim2.new(1, 0, 0, 12)
+HeaderFix.Position = UDim2.new(0, 0, 1, -12)
+HeaderFix.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+HeaderFix.BorderSizePixel = 0
+HeaderFix.Parent = Header
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Size = UDim2.new(1, -100, 1, 0)
+Title.Position = UDim2.new(0, 15, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.Text = "🎣 Fish World Script Hub"
+Title.TextColor3 = Color3.fromRGB(100, 200, 255)
+Title.TextSize = 18
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Header
+
+-- Subtitle
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Name = "Subtitle"
+Subtitle.Size = UDim2.new(0, 100, 0, 20)
+Subtitle.Position = UDim2.new(1, -110, 0, 15)
+Subtitle.BackgroundTransparency = 1
+Subtitle.Font = Enum.Font.Gotham
+Subtitle.Text = "by Rey | v1.0"
+Subtitle.TextColor3 = Color3.fromRGB(150, 150, 160)
+Subtitle.TextSize = 11
+Subtitle.Parent = Header
+
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Size = UDim2.new(0, 35, 0, 35)
+CloseButton.Position = UDim2.new(1, -45, 0, 7.5)
+CloseButton.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+CloseButton.BorderSizePixel = 0
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 16
+CloseButton.Parent = Header
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 8)
+CloseCorner.Parent = CloseButton
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
 end)
 
-local UIS = game:GetService("UserInputService")
+-- Tab Container
+local TabContainer = Instance.new("Frame")
+TabContainer.Name = "TabContainer"
+TabContainer.Size = UDim2.new(1, -20, 0, 40)
+TabContainer.Position = UDim2.new(0, 10, 0, 60)
+TabContainer.BackgroundTransparency = 1
+TabContainer.Parent = MainFrame
 
--- GUI
-local gui = Instance.new("ScreenGui")
-gui.Name = "ReyGui"
-gui.IgnoreGuiInset = true -- << INI PENTING
-gui.ResetOnSpawn = false
-gui.Parent = game.CoreGui
+-- Content Container
+local ContentContainer = Instance.new("Frame")
+ContentContainer.Name = "ContentContainer"
+ContentContainer.Size = UDim2.new(1, -20, 1, -120)
+ContentContainer.Position = UDim2.new(0, 10, 0, 110)
+ContentContainer.BackgroundTransparency = 1
+ContentContainer.Parent = MainFrame
 
--- MAIN FRAME
-local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 420, 0, 300)
-main.Position = UDim2.new(0.5, -210, 0.5, -150)
-main.BackgroundColor3 = Color3.fromRGB(25,25,25)
-main.BorderSizePixel = 0
-main.ZIndex = 10
+-- Tab System
+local tabs = {}
+local currentTab = nil
 
--- ROUND
-Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+local function createTab(name, icon, order)
+    local tab = {}
+    
+    -- Tab Button
+    local button = Instance.new("TextButton")
+    button.Name = name .. "Tab"
+    button.Size = UDim2.new(0, 100, 1, 0)
+    button.Position = UDim2.new(0, (order - 1) * 105, 0, 0)
+    button.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+    button.BorderSizePixel = 0
+    button.Font = Enum.Font.GothamBold
+    button.Text = icon .. " " .. name
+    button.TextColor3 = Color3.fromRGB(180, 180, 190)
+    button.TextSize = 13
+    button.Parent = TabContainer
+    
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0, 8)
+    buttonCorner.Parent = button
+    
+    -- Tab Content
+    local content = Instance.new("ScrollingFrame")
+    content.Name = name .. "Content"
+    content.Size = UDim2.new(1, 0, 1, 0)
+    content.BackgroundTransparency = 1
+    content.BorderSizePixel = 0
+    content.ScrollBarThickness = 6
+    content.ScrollBarImageColor3 = Color3.fromRGB(100, 200, 255)
+    content.Visible = false
+    content.CanvasSize = UDim2.new(0, 0, 0, 0)
+    content.Parent = ContentContainer
+    
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 10)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = content
+    
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        content.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+    end)
+    
+    tab.button = button
+    tab.content = content
+    tab.active = false
+    
+    button.MouseButton1Click:Connect(function()
+        for _, t in pairs(tabs) do
+            t.button.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+            t.button.TextColor3 = Color3.fromRGB(180, 180, 190)
+            t.content.Visible = false
+            t.active = false
+        end
+        
+        button.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+        button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        content.Visible = true
+        tab.active = true
+        currentTab = tab
+    end)
+    
+    tabs[name] = tab
+    return tab
+end
 
--- TOP BAR
-local top = Instance.new("Frame", main)
-top.Size = UDim2.new(1,0,0,45)
-top.BackgroundColor3 = Color3.fromRGB(35,35,35)
-top.ZIndex = 11
+-- Create Tabs
+local keyTab = createTab("Key", "🔐", 1)
+local mainTab = createTab("Main", "⚡", 2)
+local settingsTab = createTab("Settings", "⚙️", 3)
+local consoleTab = createTab("Console", "📋", 4)
+local infoTab = createTab("Info", "ℹ️", 5)
 
-local title = Instance.new("TextLabel", top)
-title.Size = UDim2.new(1,-20,1,0)
-title.Position = UDim2.new(0,10,0,0)
-title.Text = "🔥 Rey Script Hub"
-title.TextColor3 = Color3.new(1,1,1)
-title.BackgroundTransparency = 1
-title.Font = Enum.Font.GothamBold
-title.TextSize = 18
-title.ZIndex = 12
-title.TextXAlignment = Left
+-- Activate first tab
+keyTab.button.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+keyTab.button.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyTab.content.Visible = true
+keyTab.active = true
+currentTab = keyTab
 
--- CONTENT PANEL
-local content = Instance.new("Frame", main)
-content.Position = UDim2.new(0, 10, 0, 55)
-content.Size = UDim2.new(1, -20, 1, -65)
-content.BackgroundColor3 = Color3.fromRGB(45,45,45)
-content.ZIndex = 10
-Instance.new("UICorner", content).CornerRadius = UDim.new(0, 10)
+-- Helper Functions
+local function createLabel(parent, text, subtext)
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, 0, 0, subtext and 60 or 35)
+    container.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    container.BorderSizePixel = 0
+    container.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = container
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -20, 0, 20)
+    label.Position = UDim2.new(0, 10, 0, 8)
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.GothamBold
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(100, 200, 255)
+    label.TextSize = 14
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = container
+    
+    if subtext then
+        local sublabel = Instance.new("TextLabel")
+        sublabel.Size = UDim2.new(1, -20, 0, 20)
+        sublabel.Position = UDim2.new(0, 10, 0, 30)
+        sublabel.BackgroundTransparency = 1
+        sublabel.Font = Enum.Font.Gotham
+        sublabel.Text = subtext
+        sublabel.TextColor3 = Color3.fromRGB(180, 180, 190)
+        sublabel.TextSize = 12
+        sublabel.TextXAlignment = Enum.TextXAlignment.Left
+        sublabel.TextWrapped = true
+        sublabel.Parent = container
+        
+        return container, label, sublabel
+    end
+    
+    return container, label
+end
 
--- STATUS TEXT
-local status = Instance.new("TextLabel", content)
-status.Position = UDim2.new(0, 10, 0, 10)
-status.Size = UDim2.new(1, -20, 0, 40)
-status.Text = "STATUS: OFF"
-status.TextColor3 = Color3.fromRGB(255,255,255)
-status.Font = Enum.Font.GothamBold
-status.TextSize = 16
-status.BackgroundTransparency = 1
-status.ZIndex = 11
+local function createButton(parent, text, desc, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, 45)
+    button.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+    button.BorderSizePixel = 0
+    button.Font = Enum.Font.GothamBold
+    button.Text = ""
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextSize = 14
+    button.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = button
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, -20, 0, 20)
+    title.Position = UDim2.new(0, 10, 0, desc and 5 or 12)
+    title.BackgroundTransparency = 1
+    title.Font = Enum.Font.GothamBold
+    title.Text = text
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.TextSize = 14
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = button
+    
+    if desc then
+        local subtitle = Instance.new("TextLabel")
+        subtitle.Size = UDim2.new(1, -20, 0, 15)
+        subtitle.Position = UDim2.new(0, 10, 0, 25)
+        subtitle.BackgroundTransparency = 1
+        subtitle.Font = Enum.Font.Gotham
+        subtitle.Text = desc
+        subtitle.TextColor3 = Color3.fromRGB(230, 230, 240)
+        subtitle.TextSize = 11
+        subtitle.TextXAlignment = Enum.TextXAlignment.Left
+        subtitle.Parent = button
+    end
+    
+    button.MouseButton1Click:Connect(callback)
+    
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(120, 220, 255)
+    end)
+    
+    button.MouseLeave:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+    end)
+    
+    return button
+end
 
--- BUTTON
-local button = Instance.new("TextButton", content)
-button.Position = UDim2.new(0, 10, 0, 60)
-button.Size = UDim2.new(0, 220, 0, 45)
-button.Text = "TURN ON"
-button.BackgroundColor3 = Color3.fromRGB(70,70,70)
-button.TextColor3 = Color3.new(1,1,1)
-button.Font = Enum.Font.GothamBold
-button.TextSize = 16
-button.ZIndex = 11
-Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
+local function createTextBox(parent, placeholder, callback)
+    local box = Instance.new("TextBox")
+    box.Size = UDim2.new(1, 0, 0, 40)
+    box.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    box.BorderSizePixel = 0
+    box.Font = Enum.Font.Gotham
+    box.PlaceholderText = placeholder
+    box.PlaceholderColor3 = Color3.fromRGB(100, 100, 110)
+    box.Text = ""
+    box.TextColor3 = Color3.fromRGB(255, 255, 255)
+    box.TextSize = 13
+    box.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = box
+    
+    box.FocusLost:Connect(function()
+        if callback then
+            callback(box.Text)
+        end
+    end)
+    
+    return box
+end
 
--- TOGGLE LOGIC
-local enabled = false
-button.MouseButton1Click:Connect(function()
-    enabled = not enabled
-    if enabled then
-        button.Text = "TURN OFF"
-        button.BackgroundColor3 = Color3.fromRGB(0,170,100)
-        status.Text = "STATUS: ACTIVE"
+local function createSlider(parent, text, min, max, default, callback)
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, 0, 0, 60)
+    container.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    container.BorderSizePixel = 0
+    container.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = container
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -80, 0, 20)
+    label.Position = UDim2.new(0, 10, 0, 8)
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.GothamBold
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(100, 200, 255)
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = container
+    
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.Size = UDim2.new(0, 60, 0, 20)
+    valueLabel.Position = UDim2.new(1, -70, 0, 8)
+    valueLabel.BackgroundTransparency = 1
+    valueLabel.Font = Enum.Font.GothamBold
+    valueLabel.Text = tostring(default) .. "s"
+    valueLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    valueLabel.TextSize = 13
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    valueLabel.Parent = container
+    
+    local sliderBg = Instance.new("Frame")
+    sliderBg.Size = UDim2.new(1, -20, 0, 6)
+    sliderBg.Position = UDim2.new(0, 10, 0, 40)
+    sliderBg.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+    sliderBg.BorderSizePixel = 0
+    sliderBg.Parent = container
+    
+    local sliderBgCorner = Instance.new("UICorner")
+    sliderBgCorner.CornerRadius = UDim.new(1, 0)
+    sliderBgCorner.Parent = sliderBg
+    
+    local sliderFill = Instance.new("Frame")
+    sliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+    sliderFill.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+    sliderFill.BorderSizePixel = 0
+    sliderFill.Parent = sliderBg
+    
+    local sliderFillCorner = Instance.new("UICorner")
+    sliderFillCorner.CornerRadius = UDim.new(1, 0)
+    sliderFillCorner.Parent = sliderFill
+    
+    local dragging = false
+    
+    local function update(input)
+        local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
+        local value = math.floor(min + (max - min) * pos)
+        sliderFill.Size = UDim2.new(pos, 0, 1, 0)
+        valueLabel.Text = tostring(value) .. "s"
+        if callback then
+            callback(value)
+        end
+        return value
+    end
+    
+    sliderBg.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            update(input)
+        end
+    end)
+    
+    sliderBg.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+    
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            update(input)
+        end
+    end)
+    
+    return container
+end
+
+-- Functions
+local function addLog(message)
+    local timestamp = os.date("%H:%M:%S")
+    table.insert(logs, string.format("[%s] %s", timestamp, message))
+    if #logs > 20 then
+        table.remove(logs, 1)
+    end
+end
+
+local function executeScript1()
+    addLog("🚀 Memulai Script 1...")
+    task.wait(speed1)
+    
+    local args = {
+        {
+            Vector3.new(-269.9783020019531, 15.866171836853027, -262.7765197753906),
+            Vector3.new(-0.4332737326622009, -2.7589200257693847e-08, -0.9012624025344849),
+            1.9519617557525635,
+            false
+        }
+    }
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("communication"):WaitForChild("9362e25a8d224fd987d0d3f50d8249bc"):FireServer(unpack(args))
+    addLog("✅ Script 1 Selesai!")
+end
+
+local function executeScript2()
+    addLog("🚀 Memulai Script 2...")
+    task.wait(speed2)
+    
+    local args = {
+        {
+            true,
+            Vector3.new(-274.2834777832031, 3.4583072662353516, -274.8772277832031)
+        }
+    }
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("communication"):WaitForChild("fc57ae91538d430fa1ff9a33be3bc18c"):FireServer(unpack(args))
+    addLog("✅ Script 2 Selesai!")
+end
+
+local function executeBothScripts()
+    if not isAuthenticated then
+        addLog("🔒 Verifikasi key terlebih dahulu!")
+        return
+    end
+    
+    if isExecuting then
+        addLog("⚠️ Script sedang berjalan!")
+        return
+    end
+    
+    isExecuting = true
+    addLog("▶️ Memulai eksekusi berurutan...")
+    
+    task.spawn(function()
+        local success1 = pcall(executeScript1)
+        if success1 then
+            addLog("⏭️ Melanjutkan ke Script 2...")
+            local success2 = pcall(executeScript2)
+            if success2 then
+                addLog("🎉 Semua script berhasil dijalankan!")
+            else
+                addLog("❌ Script 2 gagal!")
+            end
+        else
+            addLog("❌ Script 1 gagal! Script 2 dibatalkan")
+        end
+        isExecuting = false
+    end)
+end
+
+-- Key Tab Content
+createLabel(keyTab.content, "🔐 Key Verification", "Masukkan key untuk mengakses script")
+createLabel(keyTab.content, "💬 Discord Server", DISCORD_LINK)
+
+createButton(keyTab.content, "📋 Copy Discord Link", "Salin link ke clipboard", function()
+    setclipboard(DISCORD_LINK)
+    addLog("✅ Discord link disalin!")
+end)
+
+local keyBox = createTextBox(keyTab.content, "Masukkan key dari Discord...")
+
+createButton(keyTab.content, "✅ Verify Key", "Klik untuk verifikasi", function()
+    if keyBox.Text == CORRECT_KEY then
+        isAuthenticated = true
+        addLog("🎉 Key valid! Akses diberikan")
     else
-        button.Text = "TURN ON"
-        button.BackgroundColor3 = Color3.fromRGB(70,70,70)
-        status.Text = "STATUS: OFF"
+        addLog("❌ Key salah!")
     end
 end)
 
--- DRAG
-local dragging, dragStart, startPos
-top.InputBegan:Connect(function(i)
-    if i.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = i.Position
-        startPos = main.Position
+createLabel(keyTab.content, "💡 Cara Mendapatkan Key", "1. Join Discord\n2. Cari #get-key\n3. Follow instruksi")
+
+-- Main Tab Content
+createLabel(mainTab.content, "🎣 Script Executor", "Jalankan script dengan delay custom")
+
+local statusLabel = createLabel(mainTab.content, "📊 Status:", "⏳ Siap dijalankan")
+
+createButton(mainTab.content, "▶️ Execute All Scripts", "Jalankan Script 1 → Script 2", function()
+    executeBothScripts()
+end)
+
+createButton(mainTab.content, "⚡ Execute Script 1", "Jalankan Script 1 saja", function()
+    if not isAuthenticated then
+        addLog("🔒 Verifikasi key terlebih dahulu!")
+        return
+    end
+    
+    if not isExecuting then
+        isExecuting = true
+        task.spawn(function()
+            pcall(executeScript1)
+            isExecuting = false
+        end)
     end
 end)
 
-UIS.InputChanged:Connect(function(i)
-    if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = i.Position - dragStart
-        main.Position = UDim2.new(0, startPos.X.Offset + delta.X, 0, startPos.Y.Offset + delta.Y)
+createButton(mainTab.content, "⚡ Execute Script 2", "Jalankan Script 2 saja", function()
+    if not isAuthenticated then
+        addLog("🔒 Verifikasi key terlebih dahulu!")
+        return
+    end
+    
+    if not isExecuting then
+        isExecuting = true
+        task.spawn(function()
+            pcall(executeScript2)
+            isExecuting = false
+        end)
     end
 end)
 
-UIS.InputEnded:Connect(function(i)
-    if i.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
+-- Settings Tab Content
+createLabel(settingsTab.content, "⚙️ Pengaturan Delay", "Atur delay eksekusi dalam detik")
+
+local speed1Box = createTextBox(settingsTab.content, "Delay Script 1 (detik) - Default: 1")
+speed1Box.Text = "1"
+speed1Box.FocusLost:Connect(function()
+    local value = tonumber(speed1Box.Text)
+    if value and value >= 0 then
+        speed1 = value
+        addLog("⚙️ Delay Script 1 diatur: " .. value .. "s")
+    else
+        speed1Box.Text = tostring(speed1)
+        addLog("⚠️ Input tidak valid! Gunakan angka >= 0")
     end
 end)
 
-print("✅ GUI LOADED - FULLY VISIBLE")
+local speed2Box = createTextBox(settingsTab.content, "Delay Script 2 (detik) - Default: 1")
+speed2Box.Text = "1"
+speed2Box.FocusLost:Connect(function()
+    local value = tonumber(speed2Box.Text)
+    if value and value >= 0 then
+        speed2 = value
+        addLog("⚙️ Delay Script 2 diatur: " .. value .. "s")
+    else
+        speed2Box.Text = tostring(speed2)
+        addLog("⚠️ Input tidak valid! Gunakan angka >= 0")
+    end
+end)
+
+createLabel(settingsTab.content, "📊 Atau Gunakan Slider", "Slider untuk pengaturan cepat")
+
+createSlider(settingsTab.content, "⚡ Delay Script 1 (Slider)", 0, 10, 1, function(value)
+    speed1 = value
+    speed1Box.Text = tostring(value)
+    addLog("⚙️ Delay Script 1: " .. value .. "s")
+end)
+
+createSlider(settingsTab.content, "⚡ Delay Script 2 (Slider)", 0, 10, 1, function(value)
+    speed2 = value
+    speed2Box.Text = tostring(value)
+    addLog("⚙️ Delay Script 2: " .. value .. "s")
+end)
+
+-- Console Tab Content
+createLabel(consoleTab.content, "📋 Console Log", "Monitor aktivitas script")
+
+local consoleBox = Instance.new("TextBox")
+consoleBox.Size = UDim2.new(1, 0, 0, 200)
+consoleBox.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+consoleBox.BorderSizePixel = 0
+consoleBox.Font = Enum.Font.Code
+consoleBox.Text = "Belum ada log..."
+consoleBox.TextColor3 = Color3.fromRGB(0, 255, 150)
+consoleBox.TextSize = 12
+consoleBox.TextXAlignment = Enum.TextXAlignment.Left
+consoleBox.TextYAlignment = Enum.TextYAlignment.Top
+consoleBox.TextWrapped = true
+consoleBox.MultiLine = true
+consoleBox.ClearTextOnFocus = false
+consoleBox.TextEditable = false
+consoleBox.Parent = consoleTab.content
+
+local consoleCorner = Instance.new("UICorner")
+consoleCorner.CornerRadius = UDim.new(0, 8)
+consoleCorner.Parent = consoleBox
+
+createButton(consoleTab.content, 
