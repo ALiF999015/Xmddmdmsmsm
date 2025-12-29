@@ -12,17 +12,20 @@ local speed2 = 1
 local isExecuting = false
 local logs = {}
 
+-- Check if already exists and destroy
+pcall(function()
+    if game:GetService("CoreGui"):FindFirstChild("FishWorldHub") then
+        game:GetService("CoreGui"):FindFirstChild("FishWorldHub"):Destroy()
+    end
+end)
+
+task.wait(0.2)
+
 -- Create ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "FishWorldHub"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Check if already exists
-if game:GetService("CoreGui"):FindFirstChild("FishWorldHub") then
-    game:GetService("CoreGui"):FindFirstChild("FishWorldHub"):Destroy()
-end
-
 ScreenGui.Parent = game:GetService("CoreGui")
 
 -- Main Frame
@@ -34,24 +37,9 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
 
--- Add rounded corners
 local MainCorner = Instance.new("UICorner")
 MainCorner.CornerRadius = UDim.new(0, 12)
 MainCorner.Parent = MainFrame
-
--- Add shadow effect
-local Shadow = Instance.new("ImageLabel")
-Shadow.Name = "Shadow"
-Shadow.Size = UDim2.new(1, 30, 1, 30)
-Shadow.Position = UDim2.new(0, -15, 0, -15)
-Shadow.BackgroundTransparency = 1
-Shadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-Shadow.ImageTransparency = 0.5
-Shadow.ScaleType = Enum.ScaleType.Slice
-Shadow.SliceCenter = Rect.new(10, 10, 10, 10)
-Shadow.ZIndex = 0
-Shadow.Parent = MainFrame
 
 -- Header
 local Header = Instance.new("Frame")
@@ -65,7 +53,6 @@ local HeaderCorner = Instance.new("UICorner")
 HeaderCorner.CornerRadius = UDim.new(0, 12)
 HeaderCorner.Parent = Header
 
--- Fix corner at bottom
 local HeaderFix = Instance.new("Frame")
 HeaderFix.Size = UDim2.new(1, 0, 0, 12)
 HeaderFix.Position = UDim2.new(0, 0, 1, -12)
@@ -75,7 +62,6 @@ HeaderFix.Parent = Header
 
 -- Title
 local Title = Instance.new("TextLabel")
-Title.Name = "Title"
 Title.Size = UDim2.new(1, -100, 1, 0)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
@@ -86,9 +72,7 @@ Title.TextSize = 18
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Parent = Header
 
--- Subtitle
 local Subtitle = Instance.new("TextLabel")
-Subtitle.Name = "Subtitle"
 Subtitle.Size = UDim2.new(0, 100, 0, 20)
 Subtitle.Position = UDim2.new(1, -110, 0, 15)
 Subtitle.BackgroundTransparency = 1
@@ -100,7 +84,6 @@ Subtitle.Parent = Header
 
 -- Close Button
 local CloseButton = Instance.new("TextButton")
-CloseButton.Name = "CloseButton"
 CloseButton.Size = UDim2.new(0, 35, 0, 35)
 CloseButton.Position = UDim2.new(1, -45, 0, 7.5)
 CloseButton.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
@@ -121,7 +104,6 @@ end)
 
 -- Tab Container
 local TabContainer = Instance.new("Frame")
-TabContainer.Name = "TabContainer"
 TabContainer.Size = UDim2.new(1, -20, 0, 40)
 TabContainer.Position = UDim2.new(0, 10, 0, 60)
 TabContainer.BackgroundTransparency = 1
@@ -129,93 +111,115 @@ TabContainer.Parent = MainFrame
 
 -- Content Container
 local ContentContainer = Instance.new("Frame")
-ContentContainer.Name = "ContentContainer"
 ContentContainer.Size = UDim2.new(1, -20, 1, -120)
 ContentContainer.Position = UDim2.new(0, 10, 0, 110)
 ContentContainer.BackgroundTransparency = 1
 ContentContainer.Parent = MainFrame
 
--- Tab System
-local tabs = {}
-local currentTab = nil
-
-local function createTab(name, icon, order)
-    local tab = {}
-    
-    -- Tab Button
-    local button = Instance.new("TextButton")
-    button.Name = name .. "Tab"
-    button.Size = UDim2.new(0, 100, 1, 0)
-    button.Position = UDim2.new(0, (order - 1) * 105, 0, 0)
-    button.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
-    button.BorderSizePixel = 0
-    button.Font = Enum.Font.GothamBold
-    button.Text = icon .. " " .. name
-    button.TextColor3 = Color3.fromRGB(180, 180, 190)
-    button.TextSize = 13
-    button.Parent = TabContainer
-    
-    local buttonCorner = Instance.new("UICorner")
-    buttonCorner.CornerRadius = UDim.new(0, 8)
-    buttonCorner.Parent = button
-    
-    -- Tab Content
-    local content = Instance.new("ScrollingFrame")
-    content.Name = name .. "Content"
-    content.Size = UDim2.new(1, 0, 1, 0)
-    content.BackgroundTransparency = 1
-    content.BorderSizePixel = 0
-    content.ScrollBarThickness = 6
-    content.ScrollBarImageColor3 = Color3.fromRGB(100, 200, 255)
-    content.Visible = false
-    content.CanvasSize = UDim2.new(0, 0, 0, 0)
-    content.Parent = ContentContainer
-    
-    local layout = Instance.new("UIListLayout")
-    layout.Padding = UDim.new(0, 10)
-    layout.SortOrder = Enum.SortOrder.LayoutOrder
-    layout.Parent = content
-    
-    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        content.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
-    end)
-    
-    tab.button = button
-    tab.content = content
-    tab.active = false
-    
-    button.MouseButton1Click:Connect(function()
-        for _, t in pairs(tabs) do
-            t.button.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
-            t.button.TextColor3 = Color3.fromRGB(180, 180, 190)
-            t.content.Visible = false
-            t.active = false
-        end
-        
-        button.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
-        button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        content.Visible = true
-        tab.active = true
-        currentTab = tab
-    end)
-    
-    tabs[name] = tab
-    return tab
+-- Functions
+local function addLog(message)
+    local timestamp = os.date("%H:%M:%S")
+    table.insert(logs, string.format("[%s] %s", timestamp, message))
+    if #logs > 20 then
+        table.remove(logs, 1)
+    end
 end
 
--- Create Tabs
-local keyTab = createTab("Key", "🔐", 1)
-local mainTab = createTab("Main", "⚡", 2)
-local settingsTab = createTab("Settings", "⚙️", 3)
-local consoleTab = createTab("Console", "📋", 4)
-local infoTab = createTab("Info", "ℹ️", 5)
+local function executeScript1()
+    addLog("🚀 Memulai Script 1...")
+    task.wait(speed1)
+    
+    pcall(function()
+        local args = {
+            {
+                Vector3.new(-269.9783020019531, 15.866171836853027, -262.7765197753906),
+                Vector3.new(-0.4332737326622009, -2.7589200257693847e-08, -0.9012624025344849),
+                1.9519617557525635,
+                false
+            }
+        }
+        
+        local repStorage = game:GetService("ReplicatedStorage")
+        local comm = repStorage:WaitForChild("communication", 5)
+        if comm then
+            local remote = comm:WaitForChild("9362e25a8d224fd987d0d3f50d8249bc", 5)
+            if remote then
+                remote:FireServer(unpack(args))
+                addLog("✅ Script 1 Selesai!")
+            else
+                addLog("❌ Remote Script 1 tidak ditemukan!")
+            end
+        else
+            addLog("❌ Communication folder tidak ditemukan!")
+        end
+    end)
+end
 
--- Activate first tab
-keyTab.button.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
-keyTab.button.TextColor3 = Color3.fromRGB(255, 255, 255)
-keyTab.content.Visible = true
-keyTab.active = true
-currentTab = keyTab
+local function executeScript2()
+    addLog("🚀 Memulai Script 2...")
+    task.wait(speed2)
+    
+    pcall(function()
+        local args = {
+            {
+                true,
+                Vector3.new(-274.2834777832031, 3.4583072662353516, -274.8772277832031)
+            }
+        }
+        
+        local repStorage = game:GetService("ReplicatedStorage")
+        local comm = repStorage:WaitForChild("communication", 5)
+        if comm then
+            local remote = comm:WaitForChild("fc57ae91538d430fa1ff9a33be3bc18c", 5)
+            if remote then
+                remote:FireServer(unpack(args))
+                addLog("✅ Script 2 Selesai!")
+            else
+                addLog("❌ Remote Script 2 tidak ditemukan!")
+            end
+        else
+            addLog("❌ Communication folder tidak ditemukan!")
+        end
+    end)
+end
+
+local function executeBothScripts()
+    if not isAuthenticated then
+        addLog("🔒 Verifikasi key terlebih dahulu!")
+        return
+    end
+    
+    if isExecuting then
+        addLog("⚠️ Script sedang berjalan!")
+        return
+    end
+    
+    isExecuting = true
+    addLog("▶️ Memulai eksekusi berurutan...")
+    
+    task.spawn(function()
+        local success1, err1 = pcall(function()
+            executeScript1()
+        end)
+        
+        if success1 then
+            addLog("⏭️ Melanjutkan ke Script 2...")
+            local success2, err2 = pcall(function()
+                executeScript2()
+            end)
+            
+            if success2 then
+                addLog("🎉 Semua script berhasil dijalankan!")
+            else
+                addLog("❌ Error Script 2: " .. tostring(err2))
+            end
+        else
+            addLog("❌ Error Script 1: " .. tostring(err1))
+        end
+        
+        isExecuting = false
+    end)
+end
 
 -- Helper Functions
 local function createLabel(parent, text, subtext)
@@ -266,8 +270,6 @@ local function createButton(parent, text, desc, callback)
     button.BorderSizePixel = 0
     button.Font = Enum.Font.GothamBold
     button.Text = ""
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.TextSize = 14
     button.Parent = parent
     
     local corner = Instance.new("UICorner")
@@ -298,7 +300,9 @@ local function createButton(parent, text, desc, callback)
         subtitle.Parent = button
     end
     
-    button.MouseButton1Click:Connect(callback)
+    button.MouseButton1Click:Connect(function()
+        pcall(callback)
+    end)
     
     button.MouseEnter:Connect(function()
         button.BackgroundColor3 = Color3.fromRGB(120, 220, 255)
@@ -311,7 +315,7 @@ local function createButton(parent, text, desc, callback)
     return button
 end
 
-local function createTextBox(parent, placeholder, callback)
+local function createTextBox(parent, placeholder)
     local box = Instance.new("TextBox")
     box.Size = UDim2.new(1, 0, 0, 40)
     box.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
@@ -327,12 +331,6 @@ local function createTextBox(parent, placeholder, callback)
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 8)
     corner.Parent = box
-    
-    box.FocusLost:Connect(function()
-        if callback then
-            callback(box.Text)
-        end
-    end)
     
     return box
 end
@@ -399,7 +397,7 @@ local function createSlider(parent, text, min, max, default, callback)
         sliderFill.Size = UDim2.new(pos, 0, 1, 0)
         valueLabel.Text = tostring(value) .. "s"
         if callback then
-            callback(value)
+            pcall(callback, value)
         end
         return value
     end
@@ -426,115 +424,115 @@ local function createSlider(parent, text, min, max, default, callback)
     return container
 end
 
--- Functions
-local function addLog(message)
-    local timestamp = os.date("%H:%M:%S")
-    table.insert(logs, string.format("[%s] %s", timestamp, message))
-    if #logs > 20 then
-        table.remove(logs, 1)
-    end
-end
+-- Tab System
+local tabs = {}
+local currentTab = nil
 
-local function executeScript1()
-    addLog("🚀 Memulai Script 1...")
-    task.wait(speed1)
+local function createTab(name, icon, order)
+    local tab = {}
     
-    local args = {
-        {
-            Vector3.new(-269.9783020019531, 15.866171836853027, -262.7765197753906),
-            Vector3.new(-0.4332737326622009, -2.7589200257693847e-08, -0.9012624025344849),
-            1.9519617557525635,
-            false
-        }
-    }
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 100, 1, 0)
+    button.Position = UDim2.new(0, (order - 1) * 105, 0, 0)
+    button.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+    button.BorderSizePixel = 0
+    button.Font = Enum.Font.GothamBold
+    button.Text = icon .. " " .. name
+    button.TextColor3 = Color3.fromRGB(180, 180, 190)
+    button.TextSize = 13
+    button.Parent = TabContainer
     
-    game:GetService("ReplicatedStorage"):WaitForChild("communication"):WaitForChild("9362e25a8d224fd987d0d3f50d8249bc"):FireServer(unpack(args))
-    addLog("✅ Script 1 Selesai!")
-end
-
-local function executeScript2()
-    addLog("🚀 Memulai Script 2...")
-    task.wait(speed2)
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0, 8)
+    buttonCorner.Parent = button
     
-    local args = {
-        {
-            true,
-            Vector3.new(-274.2834777832031, 3.4583072662353516, -274.8772277832031)
-        }
-    }
+    local content = Instance.new("ScrollingFrame")
+    content.Size = UDim2.new(1, 0, 1, 0)
+    content.BackgroundTransparency = 1
+    content.BorderSizePixel = 0
+    content.ScrollBarThickness = 6
+    content.ScrollBarImageColor3 = Color3.fromRGB(100, 200, 255)
+    content.Visible = false
+    content.CanvasSize = UDim2.new(0, 0, 0, 0)
+    content.Parent = ContentContainer
     
-    game:GetService("ReplicatedStorage"):WaitForChild("communication"):WaitForChild("fc57ae91538d430fa1ff9a33be3bc18c"):FireServer(unpack(args))
-    addLog("✅ Script 2 Selesai!")
-end
-
-local function executeBothScripts()
-    if not isAuthenticated then
-        addLog("🔒 Verifikasi key terlebih dahulu!")
-        return
-    end
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 10)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = content
     
-    if isExecuting then
-        addLog("⚠️ Script sedang berjalan!")
-        return
-    end
-    
-    isExecuting = true
-    addLog("▶️ Memulai eksekusi berurutan...")
-    
-    task.spawn(function()
-        local success1 = pcall(executeScript1)
-        if success1 then
-            addLog("⏭️ Melanjutkan ke Script 2...")
-            local success2 = pcall(executeScript2)
-            if success2 then
-                addLog("🎉 Semua script berhasil dijalankan!")
-            else
-                addLog("❌ Script 2 gagal!")
-            end
-        else
-            addLog("❌ Script 1 gagal! Script 2 dibatalkan")
-        end
-        isExecuting = false
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        content.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
     end)
+    
+    tab.button = button
+    tab.content = content
+    
+    button.MouseButton1Click:Connect(function()
+        for _, t in pairs(tabs) do
+            t.button.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+            t.button.TextColor3 = Color3.fromRGB(180, 180, 190)
+            t.content.Visible = false
+        end
+        
+        button.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+        button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        content.Visible = true
+        currentTab = tab
+    end)
+    
+    tabs[name] = tab
+    return tab
 end
 
--- Key Tab Content
-createLabel(keyTab.content, "🔐 Key Verification", "Masukkan key untuk mengakses script")
-createLabel(keyTab.content, "💬 Discord Server", DISCORD_LINK)
+-- Create Tabs
+local keyTab = createTab("Key", "🔐", 1)
+local mainTab = createTab("Main", "⚡", 2)
+local settingsTab = createTab("Settings", "⚙️", 3)
+local consoleTab = createTab("Console", "📋", 4)
+local infoTab = createTab("Info", "ℹ️", 5)
 
-createButton(keyTab.content, "📋 Copy Discord Link", "Salin link ke clipboard", function()
+-- Activate Key Tab
+keyTab.button.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+keyTab.button.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyTab.content.Visible = true
+
+-- Key Tab
+createLabel(keyTab.content, "🔐 Key Verification", "Masukkan key untuk akses")
+createLabel(keyTab.content, "💬 Discord", DISCORD_LINK)
+
+createButton(keyTab.content, "📋 Copy Discord", nil, function()
     setclipboard(DISCORD_LINK)
-    addLog("✅ Discord link disalin!")
+    addLog("✅ Link disalin!")
 end)
 
-local keyBox = createTextBox(keyTab.content, "Masukkan key dari Discord...")
+local keyBox = createTextBox(keyTab.content, "Masukkan key...")
 
-createButton(keyTab.content, "✅ Verify Key", "Klik untuk verifikasi", function()
+createButton(keyTab.content, "✅ Verify", nil, function()
     if keyBox.Text == CORRECT_KEY then
         isAuthenticated = true
-        addLog("🎉 Key valid! Akses diberikan")
+        addLog("🎉 Key valid!")
     else
         addLog("❌ Key salah!")
     end
 end)
 
-createLabel(keyTab.content, "💡 Cara Mendapatkan Key", "1. Join Discord\n2. Cari #get-key\n3. Follow instruksi")
+createLabel(keyTab.content, "💡 Info", "Join Discord untuk key!")
 
--- Main Tab Content
-createLabel(mainTab.content, "🎣 Script Executor", "Jalankan script dengan delay custom")
+-- Main Tab
+createLabel(mainTab.content, "🎣 Executor", "Execute scripts")
 
-local statusLabel = createLabel(mainTab.content, "📊 Status:", "⏳ Siap dijalankan")
+local statusContainer, _, statusSub = createLabel(mainTab.content, "📊 Status", "⏳ Siap")
 
-createButton(mainTab.content, "▶️ Execute All Scripts", "Jalankan Script 1 → Script 2", function()
+createButton(mainTab.content, "▶️ Execute All", "Script 1 → 2", function()
     executeBothScripts()
 end)
 
-createButton(mainTab.content, "⚡ Execute Script 1", "Jalankan Script 1 saja", function()
+createButton(mainTab.content, "⚡ Script 1", nil, function()
     if not isAuthenticated then
-        addLog("🔒 Verifikasi key terlebih dahulu!")
+        addLog("🔒 Verifikasi key!")
         return
     end
-    
     if not isExecuting then
         isExecuting = true
         task.spawn(function()
@@ -544,12 +542,11 @@ createButton(mainTab.content, "⚡ Execute Script 1", "Jalankan Script 1 saja", 
     end
 end)
 
-createButton(mainTab.content, "⚡ Execute Script 2", "Jalankan Script 2 saja", function()
+createButton(mainTab.content, "⚡ Script 2", nil, function()
     if not isAuthenticated then
-        addLog("🔒 Verifikasi key terlebih dahulu!")
+        addLog("🔒 Verifikasi key!")
         return
     end
-    
     if not isExecuting then
         isExecuting = true
         task.spawn(function()
@@ -559,51 +556,51 @@ createButton(mainTab.content, "⚡ Execute Script 2", "Jalankan Script 2 saja", 
     end
 end)
 
--- Settings Tab Content
-createLabel(settingsTab.content, "⚙️ Pengaturan Delay", "Atur delay eksekusi dalam detik")
+-- Settings Tab
+createLabel(settingsTab.content, "⚙️ Delay Settings", "Dalam detik")
 
-local speed1Box = createTextBox(settingsTab.content, "Delay Script 1 (detik) - Default: 1")
+local speed1Box = createTextBox(settingsTab.content, "Delay Script 1 (default: 1)")
 speed1Box.Text = "1"
 speed1Box.FocusLost:Connect(function()
-    local value = tonumber(speed1Box.Text)
-    if value and value >= 0 then
-        speed1 = value
-        addLog("⚙️ Delay Script 1 diatur: " .. value .. "s")
+    local v = tonumber(speed1Box.Text)
+    if v and v >= 0 then
+        speed1 = v
+        addLog("⚙️ Delay 1: " .. v .. "s")
     else
         speed1Box.Text = tostring(speed1)
-        addLog("⚠️ Input tidak valid! Gunakan angka >= 0")
+        addLog("⚠️ Input invalid!")
     end
 end)
 
-local speed2Box = createTextBox(settingsTab.content, "Delay Script 2 (detik) - Default: 1")
+local speed2Box = createTextBox(settingsTab.content, "Delay Script 2 (default: 1)")
 speed2Box.Text = "1"
 speed2Box.FocusLost:Connect(function()
-    local value = tonumber(speed2Box.Text)
-    if value and value >= 0 then
-        speed2 = value
-        addLog("⚙️ Delay Script 2 diatur: " .. value .. "s")
+    local v = tonumber(speed2Box.Text)
+    if v and v >= 0 then
+        speed2 = v
+        addLog("⚙️ Delay 2: " .. v .. "s")
     else
         speed2Box.Text = tostring(speed2)
-        addLog("⚠️ Input tidak valid! Gunakan angka >= 0")
+        addLog("⚠️ Input invalid!")
     end
 end)
 
-createLabel(settingsTab.content, "📊 Atau Gunakan Slider", "Slider untuk pengaturan cepat")
+createLabel(settingsTab.content, "📊 Slider", "Alternatif")
 
-createSlider(settingsTab.content, "⚡ Delay Script 1 (Slider)", 0, 10, 1, function(value)
-    speed1 = value
-    speed1Box.Text = tostring(value)
-    addLog("⚙️ Delay Script 1: " .. value .. "s")
+createSlider(settingsTab.content, "⚡ Script 1", 0, 10, 1, function(v)
+    speed1 = v
+    speed1Box.Text = tostring(v)
+    addLog("⚙️ Delay 1: " .. v .. "s")
 end)
 
-createSlider(settingsTab.content, "⚡ Delay Script 2 (Slider)", 0, 10, 1, function(value)
-    speed2 = value
-    speed2Box.Text = tostring(value)
-    addLog("⚙️ Delay Script 2: " .. value .. "s")
+createSlider(settingsTab.content, "⚡ Script 2", 0, 10, 1, function(v)
+    speed2 = v
+    speed2Box.Text = tostring(v)
+    addLog("⚙️ Delay 2: " .. v .. "s")
 end)
 
--- Console Tab Content
-createLabel(consoleTab.content, "📋 Console Log", "Monitor aktivitas script")
+-- Console Tab
+createLabel(consoleTab.content, "📋 Console", "Log aktivitas")
 
 local consoleBox = Instance.new("TextBox")
 consoleBox.Size = UDim2.new(1, 0, 0, 200)
@@ -625,4 +622,27 @@ local consoleCorner = Instance.new("UICorner")
 consoleCorner.CornerRadius = UDim.new(0, 8)
 consoleCorner.Parent = consoleBox
 
-createButton(consoleTab.content, 
+createButton(consoleTab.content, "🗑️ Clear", nil, function()
+    logs = {}
+    consoleBox.Text = "Log cleared..."
+    addLog("📋 Cleared")
+end)
+
+-- Info Tab
+createLabel(infoTab.content, "🎣 Fish World Hub", "Premium executor")
+createLabel(infoTab.content, "👤 Dev", "by Rey")
+createLabel(infoTab.content, "💬 Discord", DISCORD_LINK)
+
+createButton(infoTab.content, "📋 Copy Discord", nil, function()
+    setclipboard(DISCORD_LINK)
+    addLog("✅ Link copied!")
+end)
+
+createLabel(infoTab.content, "ℹ️ Info", "v1.0 | Dec 2024")
+
+-- Updates
+task.spawn(function()
+    while task.wait(0.5) do
+        pcall(function()
+            if statusSub then
+                statusSub.Text = isExec
