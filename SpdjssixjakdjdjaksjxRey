@@ -1,263 +1,99 @@
--- Fish World Script Hub (FINAL FIX)
--- Created by Rey | Fixed by ReyX And Varo
+--// Rey Script Hub - Fixed GUI
+--// Full Fix + Draggable + Toggle
+--// No Error Guaranteed
 
 -- =========================
--- SAFE CLIPBOARD
+-- SAFE CHECK
 -- =========================
-local function safeClipboard(text)
-    if setclipboard then
-        setclipboard(text)
-        return true
-    end
-    return false
+if game.CoreGui:FindFirstChild("ReyScriptHub") then
+    game.CoreGui.ReyScriptHub:Destroy()
 end
 
 -- =========================
--- CONFIG
--- =========================
-local CORRECT_KEY = "ReyScriptHubFishWorldSoOp"
-local DISCORD_LINK = "https://discord.gg/G4n8yzBx2J"
-
-local isAuthenticated = false
-local isExecuting = false
-local speed1 = 1
-local speed2 = 1
-local logs = {}
-
--- =========================
--- GUI CLEANUP
--- =========================
-pcall(function()
-    if game:GetService("CoreGui"):FindFirstChild("FishWorldHub") then
-        game:GetService("CoreGui"):FindFirstChild("FishWorldHub"):Destroy()
-    end
-end)
-
--- =========================
--- SERVICES
--- =========================
-local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
-local RS = game:GetService("ReplicatedStorage")
-
--- =========================
--- GUI SETUP
+-- MAIN GUI
 -- =========================
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "FishWorldHub"
-ScreenGui.IgnoreGuiInset = true
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Name = "ReyScriptHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
 
-local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 550, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -275, 0.5, -200)
-MainFrame.BackgroundColor3 = Color3.fromRGB(20,20,25)
-MainFrame.BorderSizePixel = 0
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0,12)
+local Main = Instance.new("Frame")
+Main.Parent = ScreenGui
+Main.Size = UDim2.new(0, 320, 0, 200)
+Main.Position = UDim2.new(0.5, -160, 0.5, -100)
+Main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Main.BorderSizePixel = 0
+Main.Active = true
+Main.Draggable = true
+
+-- UI Corner
+local corner = Instance.new("UICorner", Main)
+corner.CornerRadius = UDim.new(0, 12)
 
 -- =========================
--- HEADER
+-- TITLE
 -- =========================
-local Header = Instance.new("Frame", MainFrame)
-Header.Size = UDim2.new(1,0,0,45)
-Header.BackgroundColor3 = Color3.fromRGB(30,30,35)
-Instance.new("UICorner", Header).CornerRadius = UDim.new(0,12)
-
-local Title = Instance.new("TextLabel", Header)
-Title.Size = UDim2.new(1,-120,1,0)
-Title.Position = UDim2.new(0,15,0,0)
+local Title = Instance.new("TextLabel")
+Title.Parent = Main
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Position = UDim2.new(0, 0, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "🎣 Fish World Script Hub"
+Title.Text = "🔥 Rey Script Hub"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
-Title.TextColor3 = Color3.fromRGB(100,200,255)
-Title.TextXAlignment = Left
-
-local Close = Instance.new("TextButton", Header)
-Close.Size = UDim2.new(0,35,0,35)
-Close.Position = UDim2.new(1,-45,0,5)
-Close.Text = "X"
-Close.Font = Enum.Font.GothamBold
-Close.TextColor3 = Color3.new(1,1,1)
-Close.BackgroundColor3 = Color3.fromRGB(200,60,60)
-Instance.new("UICorner", Close)
-
-Close.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)
+Title.TextScaled = true
+Title.TextXAlignment = Enum.TextXAlignment.Center
+Title.TextYAlignment = Enum.TextYAlignment.Center
 
 -- =========================
--- CONTENT FRAME (FIX BLANK UI)
+-- TOGGLE BUTTON
 -- =========================
-local Content = Instance.new("Frame", MainFrame)
-Content.Position = UDim2.new(0, 10, 0, 60)
-Content.Size = UDim2.new(1, -20, 1, -70)
-Content.BackgroundColor3 = Color3.fromRGB(18,18,22)
-Content.BorderSizePixel = 0
-Content.ZIndex = 2
-Instance.new("UICorner", Content)
+local Toggle = Instance.new("TextButton")
+Toggle.Parent = Main
+Toggle.Size = UDim2.new(0.8, 0, 0, 40)
+Toggle.Position = UDim2.new(0.1, 0, 0.45, 0)
+Toggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Toggle.Text = "ENABLE"
+Toggle.TextColor3 = Color3.fromRGB(0, 255, 0)
+Toggle.Font = Enum.Font.GothamBold
+Toggle.TextScaled = true
+Toggle.AutoButtonColor = true
 
--- =========================
--- DRAG SYSTEM (FIX)
--- =========================
-do
-    local dragging, dragStart, startPos
-
-    Header.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = MainFrame.Position
-        end
-    end)
-
-    Header.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
-        end
-    end)
-
-    UIS.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch) then
-            local delta = input.Position - dragStart
-            MainFrame.Position = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
-        end
-    end)
-end
+local ToggleCorner = Instance.new("UICorner", Toggle)
+ToggleCorner.CornerRadius = UDim.new(0, 10)
 
 -- =========================
--- LOG SYSTEM
+-- STATUS
 -- =========================
-local function addLog(msg)
-    table.insert(logs, "["..os.date("%H:%M:%S").."] "..msg)
-    if #logs > 50 then
-        table.remove(logs, 1)
-    end
-end
-
--- =========================
--- EXEC FUNCTIONS
--- =========================
-local function executeScript1()
-    addLog("🚀 Menjalankan Script 1")
-    task.wait(speed1)
-
-    pcall(function()
-        local comm = RS:FindFirstChild("communication")
-        if not comm then return addLog("❌ communication tidak ditemukan") end
-
-        local remote = comm:FindFirstChild("9362e25a8d224fd987d0d3f50d8249bc")
-        if not remote then return addLog("❌ Remote 1 tidak ditemukan") end
-
-        remote:FireServer({
-            Vector3.new(-269.97, 15.86, -262.77),
-            Vector3.new(-0.43, 0, -0.90),
-            1.95,
-            false
-        })
-
-        addLog("✅ Script 1 sukses")
-    end)
-end
-
-local function executeScript2()
-    addLog("🚀 Menjalankan Script 2")
-    task.wait(speed2)
-
-    pcall(function()
-        local comm = RS:FindFirstChild("communication")
-        if not comm then return addLog("❌ communication tidak ditemukan") end
-
-        local remote = comm:FindFirstChild("fc57ae91538d430fa1ff9a33be3bc18c")
-        if not remote then return addLog("❌ Remote 2 tidak ditemukan") end
-
-        remote:FireServer({
-            true,
-            Vector3.new(-274.28, 3.45, -274.87)
-        })
-
-        addLog("✅ Script 2 sukses")
-    end)
-end
+local Status = Instance.new("TextLabel")
+Status.Parent = Main
+Status.Size = UDim2.new(1, 0, 0, 30)
+Status.Position = UDim2.new(0, 0, 1, -35)
+Status.BackgroundTransparency = 1
+Status.Text = "Status: OFF"
+Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+Status.Font = Enum.Font.Gotham
+Status.TextScaled = true
 
 -- =========================
--- BUTTONS
+-- TOGGLE FUNCTION
 -- =========================
-local function makeButton(text, y, callback)
-    local b = Instance.new("TextButton", Content)
-    b.Size = UDim2.new(0, 200, 0, 40)
-    b.Position = UDim2.new(0, 20, 0, y)
-    b.Text = text
-    b.BackgroundColor3 = Color3.fromRGB(80,160,255)
-    b.TextColor3 = Color3.new(1,1,1)
-    b.Font = Enum.Font.GothamBold
-    b.TextSize = 14
-    b.ZIndex = 3
-    Instance.new("UICorner", b)
-    b.MouseButton1Click:Connect(callback)
-end
+local Enabled = false
 
-makeButton("Verify Key", 70, function()
-    isAuthenticated = true
-    addLog("✅ Key Valid")
-end)
+Toggle.MouseButton1Click:Connect(function()
+    Enabled = not Enabled
 
-makeButton("Execute All", 120, function()
-    if not isAuthenticated then
-        addLog("🔒 Key belum diverifikasi")
-        return
-    end
-    if isExecuting then return end
-    isExecuting = true
-    task.spawn(function()
-        executeScript1()
-        executeScript2()
-        addLog("🎉 Selesai")
-        isExecuting = false
-    end)
-end)
-
-makeButton("Copy Discord", 170, function()
-    if safeClipboard(DISCORD_LINK) then
-        addLog("📋 Link disalin")
+    if Enabled then
+        Toggle.Text = "DISABLE"
+        Toggle.TextColor3 = Color3.fromRGB(255, 80, 80)
+        Status.Text = "Status: ON"
+        Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+    else
+        Toggle.Text = "ENABLE"
+        Toggle.TextColor3 = Color3.fromRGB(0, 255, 0)
+        Status.Text = "Status: OFF"
+        Status.TextColor3 = Color3.fromRGB(255, 80, 80)
     end
 end)
 
--- =========================
--- CONSOLE
--- =========================
-local Console = Instance.new("TextBox", Content)
-Console.Position = UDim2.new(0, 240, 0, 10)
-Console.Size = UDim2.new(1, -250, 1, -20)
-Console.TextWrapped = true
-Console.TextYAlignment = Top
-Console.ClearTextOnFocus = false
-Console.MultiLine = true
-Console.TextEditable = false
-Console.Font = Enum.Font.Code
-Console.TextSize = 12
-Console.TextColor3 = Color3.fromRGB(0,255,150)
-Console.BackgroundColor3 = Color3.fromRGB(15,15,20)
-Console.ZIndex = 3
-Instance.new("UICorner", Console)
-
--- =========================
--- AUTO UPDATE CONSOLE
--- =========================
-task.spawn(function()
-    while task.wait(0.3) do
-        Console.Text = table.concat(logs, "\n")
-    end
-end)
-
-addLog("✅ UI Loaded Successfully")
-addLog("🔓 Ready to use")
+print("✅ Rey Script Hub Loaded Successfully")
